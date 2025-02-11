@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ask Dave - Dave's Hot Chicken</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="header">
+    <img src="dhc-logo.png" alt="Dave's Hot Chicken" class="logo">
+    <h1>Ask Dave</h1>
+    <p class="tagline">FLOCK AROUND AND FIND OUT</p>
+  </div>
+  <div class="quick-actions">
+    <button class="action-btn" data-query="Tell me about DHC's brand voice">BRAND VOICE</button>
+    <button class="action-btn" data-query="What are DHC's current marketing priorities?">MARKETING</button>
+    <button class="action-btn" data-query="How do we maintain street cred while scaling?">CULTURE</button>
+    <button class="action-btn" data-query="What makes DHC's chicken special?">PRODUCT</button>
+  </div>
+  <div class="chat-container">
+    <div id="chat-log"></div>
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="Enter your message...">
+      <button id="send-btn">Send</button>
+      <div id="loading" class="loading hidden">...</div>
+    </div>
+  </div>
+  <script>
+    const sendBtn = document.getElementById('send-btn');
+    const userInput = document.getElementById('user-input');
+    const chatLog = document.getElementById('chat-log');
+    const loading = document.getElementById('loading');
+    
+    // Add quick action button functionality
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const query = button.getAttribute('data-query');
+        userInput.value = query;
+        sendMessage();
+      });
+    });
+
+    async function sendMessage() {
+        const message = userInput.value;
+        if (!message) return;
+        
+        // Show user message
+        addMessage(message, 'user');
+        userInput.value = '';
+        loading.classList.remove('hidden');
+        
+        try {
+            const response = await fetch('/api/assistant', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({message})
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            const data = await response.json();
+            addMessage(data.response, 'bot');
+        } catch (error) {
+            console.error('Error:', error);
+            addMessage('Sorry, something went wrong. Please try again.', 'bot');
+        } finally {
+            loading.classList.add('hidden');
+        }
+    }
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const name = sender === 'bot' ? 'Dave 🔥' : 'You';
+        messageDiv.innerHTML = `<strong>${name}:</strong> ${text}`;
+        
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Add initial welcome message
+    window.addEventListener('load', () => {
+        addMessage("Yo! What's good? Whether you're talking brand, culture, or our Nashville hot heat levels - I'm here to keep it 💯", 'bot');
+    });
+  </script>
+</body>
+</html>
