@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/assistant.py", "use": "@vercel/python" },
+    { "src": "api/assistant.py", "use": "@vercel/python", "config": { "runtime": "python3.9" } },
     { "src": "*.html", "use": "@vercel/static" },
     { "src": "*.css", "use": "@vercel/static" },
     { "src": "*.png", "use": "@vercel/static" },
@@ -19,5 +19,8 @@
       "dest": "api/assistant.py"
     },
     { "src": "/(.*)", "dest": "/$1" }
-  ]
+  ],
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  }
 }

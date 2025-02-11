@@ -19,7 +19,11 @@ def verify_credentials():
     assistant_id = os.getenv("ASSISTANT_ID")
     
     # Initialize client with fresh API key
-    client = OpenAI(api_key=api_key)
+    client = OpenAI(
+        api_key=api_key,
+        max_retries=3,
+        timeout=30.0
+    )
     
     # Check API Key
     print("\nChecking API Key...")
