@@ -123,10 +123,11 @@ class Handler:
                 "message": str(e),
                 "type": str(type(e).__name__),
                 "assistant_id": ASSISTANT_ID,
-                "thread_id": self.thread_id
+                "thread_id": self.thread_id,
+                "timestamp": time.time()
             }
         }
-        print(f"Full error details: {json.dumps(error_details)}")
+        print(f"Full error details: {json.dumps(error_details, indent=2)}")
         headers = {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -163,17 +164,13 @@ class Handler:
     def do_POST(self):
         try:
             print(f"\n=== Handling POST request to {self.path} ===")
-            print(f"Headers: {dict(self.headers)}")
-            print(f"Path before processing: {self.path}")
+            print(f"Full headers: {dict(self.headers)}")
             
-            # Handle both /api/upload and /api/assistant paths
             if not self.path.startswith('/api/'):
                 raise ValueError(f"Invalid path: {self.path}")
             
-            # More robust endpoint extraction
-            endpoint = self.path.split('/')[-1]  # Get last part of path
-            print(f"Endpoint after processing: {endpoint}")
-            print(f"Content-Type: {self.headers.get('Content-Type', 'none')}")
+            endpoint = self.path.split('/')[-1]
+            print(f"Processing endpoint: {endpoint}")
             
             if endpoint == 'upload':
                 print("Processing file upload...")
@@ -225,20 +222,27 @@ class Handler:
                     }
                     self._send_json_response(400, error_response)
                     return
-            elif endpoint == 'assistant':  # Simplified comparison
-                print(f"\n=== Starting new request ===")
-                
-                # Read request body
+            elif endpoint == 'assistant':
+                print("\n=== Reading request body ===")
                 content_length = int(self.headers.get('Content-Length', 0))
-                if content_length == 0:
-                    raise ValueError("Empty request body")
-                
                 body = self.rfile.read(content_length)
-                data = json.loads(body)
-                message = data.get('message', '')
+                print(f"Raw request body: {body.decode('utf-8')}")
                 
+                try:
+                    data = json.loads(body)
+                    print(f"Parsed request data: {json.dumps(data, indent=2)}")
+                except json.JSONDecodeError as e:
+                    print(f"JSON parsing error: {str(e)}")
+                    raise ValueError("Invalid JSON in request body")
+                
+                message = data.get('message', '')
                 if not message:
                     raise ValueError("Message is required")
+                
+                print(f"\n=== OpenAI Request ===")
+                print(f"Assistant ID: {ASSISTANT_ID}")
+                print(f"Thread ID: {self.thread_id}")
+                print(f"Message: {message}")
                 
                 if not ASSISTANT_ID:
                     raise ValueError("Assistant not properly initialized")
@@ -326,8 +330,10 @@ class Handler:
                 raise ValueError(f"Unknown endpoint: {endpoint}")
             
         except Exception as e:
-            print(f"\n=== Error Occurred ===")
-            print(f"Error in request handler: {str(e)}")
+            print(f"\n=== Detailed Error ===")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
+            print(f"Error location: {e.__traceback__.tb_frame.f_code.co_name}")
             self.handle_error(e)
 
     def do_OPTIONS(self):

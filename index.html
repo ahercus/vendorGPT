@@ -73,19 +73,31 @@
                 body: JSON.stringify({message})
             });
             
-            const data = await response.json();
+            let errorMessage = 'A server error has occurred';
+            
+            // Try to get response body even for errors
+            const data = await response.json().catch(e => {
+                console.error('Failed to parse response:', e);
+                return { error: { message: 'Invalid server response' } };
+            });
             
             if (!response.ok) {
-                throw new Error(data.error?.message || 'A server error has occurred');
+                errorMessage = data.error?.message || errorMessage;
+                console.error('Server error details:', data.error);
+                throw new Error(errorMessage);
             }
             
             if (data.error) {
-                throw new Error(data.error?.message || 'Unknown error');
+                errorMessage = data.error?.message || 'Unknown error';
+                console.error('Response error details:', data.error);
+                throw new Error(errorMessage);
             }
             
             addMessage(data.response, 'bot');
         } catch (error) {
             console.error('Error details:', error);
+            // Log the full error stack for debugging
+            console.error('Error stack:', error.stack);
             addMessage(`Sorry, I encountered an error. Please try again in a moment.`, 'bot');
         } finally {
             // Reset button state
