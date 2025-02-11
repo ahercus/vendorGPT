@@ -1,0 +1,1668 @@
+{
+  "Assistants": {
+    "description": "Build assistants that can call models and use tools to perform tasks.",
+    "endpoints": [
+      {
+        "name": "Create assistant",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/assistants",
+        "description": "Create an assistant with a model and instructions.",
+        "request_body": {
+          "fields": {
+            "model": {
+              "type": "string",
+              "required": true,
+              "description": "ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them."
+            },
+            "name": {
+              "type": "string or null",
+              "required": false,
+              "description": "The name of the assistant. The maximum length is 256 characters."
+            },
+            "description": {
+              "type": "string or null",
+              "required": false,
+              "description": "The description of the assistant. The maximum length is 512 characters."
+            },
+            "instructions": {
+              "type": "string or null",
+              "required": false,
+              "description": "The system instructions that the assistant uses. The maximum length is 256,000 characters."
+            },
+            "tools": {
+              "type": "array",
+              "required": false,
+              "default": "[]",
+              "description": "A list of tools enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types code_interpreter, file_search, or function."
+            },
+            "tool_resources": {
+              "type": "object or null",
+              "required": false,
+              "description": "A set of resources that are used by the assistant's tools. The resources are specific to the type of tool. For example, the code_interpreter tool requires a list of file IDs, while the file_search tool requires a list of vector store IDs."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object. Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters."
+            },
+            "temperature": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
+            },
+            "top_p": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass."
+            },
+            "response_format": {
+              "type": "\"auto\" or object",
+              "required": false,
+              "description": "Specifies the format that the model must output. Compatible with GPT-4o, GPT-4 Turbo, and all GPT-3.5 Turbo models since gpt-3.5-turbo-1106. Setting to { \"type\": \"json_schema\", \"json_schema\": {...} } enables Structured Outputs. Setting to { \"type\": \"json_object\" } enables JSON mode."
+            }
+          }
+        },
+        "returns": "An assistant object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_assistant = client.beta.assistants.create(\n    instructions=\"You are a personal math tutor. When asked a question, write and run Python code to answer the question.\",\n    name=\"Math Tutor\",\n    tools=[{\"type\": \"code_interpreter\"}],\n    model=\"gpt-4o\"\n)\nprint(my_assistant)",
+        "example_response": {
+          "id": "asst_abc123",
+          "object": "assistant",
+          "created_at": 1698984975,
+          "name": "Math Tutor",
+          "description": null,
+          "model": "gpt-4o",
+          "instructions": "You are a personal math tutor. When asked a question, write and run Python code to answer the question.",
+          "tools": [
+            {
+              "type": "code_interpreter"
+            }
+          ],
+          "metadata": {},
+          "top_p": 1.0,
+          "temperature": 1.0,
+          "response_format": "auto"
+        }
+      },
+      {
+        "name": "List assistants",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/assistants",
+        "description": "Returns a list of assistants.",
+        "query_parameters": {
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "default": 20,
+            "description": "A limit on the number of objects to be returned. Limit can range between 1 and 100."
+          },
+          "order": {
+            "type": "string",
+            "required": false,
+            "default": "desc",
+            "description": "Sort order by the created_at timestamp of the objects. Use 'asc' for ascending order and 'desc' for descending order."
+          },
+          "after": {
+            "type": "string",
+            "required": false,
+            "description": "A cursor for pagination. 'after' is an object ID that defines your place in the list."
+          },
+          "before": {
+            "type": "string",
+            "required": false,
+            "description": "A cursor for pagination. 'before' is an object ID that defines your place in the list."
+          }
+        },
+        "returns": "A list of assistant objects.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_assistants = client.beta.assistants.list(\n    order=\"desc\",\n    limit=\"20\"\n)\nprint(my_assistants.data)",
+        "example_response": {
+          "object": "list",
+          "data": [
+            {
+              "id": "asst_abc123",
+              "object": "assistant",
+              "created_at": 1698982736,
+              "name": "Coding Tutor",
+              "description": null,
+              "model": "gpt-4o",
+              "instructions": "You are a helpful assistant designed to make me better at coding!",
+              "tools": [],
+              "tool_resources": {},
+              "metadata": {},
+              "top_p": 1.0,
+              "temperature": 1.0,
+              "response_format": "auto"
+            },
+            {
+              "id": "asst_abc456",
+              "object": "assistant",
+              "created_at": 1698982718,
+              "name": "My Assistant",
+              "description": null,
+              "model": "gpt-4o",
+              "instructions": "You are a helpful assistant designed to make me better at coding!",
+              "tools": [],
+              "tool_resources": {},
+              "metadata": {},
+              "top_p": 1.0,
+              "temperature": 1.0,
+              "response_format": "auto"
+            },
+            {
+              "id": "asst_abc789",
+              "object": "assistant",
+              "created_at": 1698982643,
+              "name": null,
+              "description": null,
+              "model": "gpt-4o",
+              "instructions": null,
+              "tools": [],
+              "tool_resources": {},
+              "metadata": {},
+              "top_p": 1.0,
+              "temperature": 1.0,
+              "response_format": "auto"
+            }
+          ],
+          "first_id": "asst_abc123",
+          "last_id": "asst_abc789",
+          "has_more": false
+        }
+      },
+      {
+        "name": "Retrieve assistant",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/assistants/{assistant_id}",
+        "description": "Retrieves an assistant.",
+        "path_parameters": {
+          "assistant_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the assistant to retrieve."
+          }
+        },
+        "returns": "The assistant object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_assistant = client.beta.assistants.retrieve(\"asst_abc123\")\nprint(my_assistant)",
+        "example_response": {
+          "id": "asst_abc123",
+          "object": "assistant",
+          "created_at": 1699009709,
+          "name": "HR Helper",
+          "description": null,
+          "model": "gpt-4o",
+          "instructions": "You are an HR bot, and you have access to files to answer employee questions about company policies.",
+          "tools": [
+            {
+              "type": "file_search"
+            }
+          ],
+          "metadata": {},
+          "top_p": 1.0,
+          "temperature": 1.0,
+          "response_format": "auto"
+        }
+      },
+      {
+        "name": "Modify assistant",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/assistants/{assistant_id}",
+        "description": "Modifies an assistant.",
+        "path_parameters": {
+          "assistant_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the assistant to modify."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "model": {
+              "required": false,
+              "description": "ID of the model to use. You can use the List models API to see all of your available models, or see our Model overview for descriptions of them."
+            },
+            "name": {
+              "type": "string or null",
+              "required": false,
+              "description": "The name of the assistant. The maximum length is 256 characters."
+            },
+            "description": {
+              "type": "string or null",
+              "required": false,
+              "description": "The description of the assistant. The maximum length is 512 characters."
+            },
+            "instructions": {
+              "type": "string or null",
+              "required": false,
+              "description": "The system instructions that the assistant uses. The maximum length is 256,000 characters."
+            },
+            "tools": {
+              "type": "array",
+              "required": false,
+              "default": "[]",
+              "description": "A list of tools enabled on the assistant. There can be a maximum of 128 tools per assistant. Tools can be of types code_interpreter, file_search, or function."
+            },
+            "tool_resources": {
+              "type": "object or null",
+              "required": false,
+              "description": "A set of resources that are used by the assistant's tools. For example, the code_interpreter tool requires a list of file IDs, while the file_search tool requires a list of vector store IDs."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object. Keys are strings with a maximum length of 64 characters. Values are strings with a maximum length of 512 characters."
+            },
+            "temperature": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "What sampling temperature to use, between 0 and 2. Higher values like 0.8 will make the output more random, while lower values like 0.2 will make it more focused and deterministic."
+            },
+            "top_p": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass."
+            },
+            "response_format": {
+              "type": "\"auto\" or object",
+              "required": false,
+              "description": "Specifies the format that the model must output. Compatible with GPT-4o, GPT-4 Turbo, and all GPT-3.5 Turbo models since gpt-3.5-turbo-1106."
+            }
+          }
+        },
+        "returns": "The modified assistant object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_updated_assistant = client.beta.assistants.update(\n  \"asst_abc123\",\n  instructions=\"You are an HR bot, and you have access to files to answer employee questions about company policies. Always response with info from either of the files.\",\n  name=\"HR Helper\",\n  tools=[{\"type\": \"file_search\"}],\n  model=\"gpt-4o\"\n)\n\nprint(my_updated_assistant)",
+        "example_response": {
+          "id": "asst_123",
+          "object": "assistant",
+          "created_at": 1699009709,
+          "name": "HR Helper",
+          "description": null,
+          "model": "gpt-4o",
+          "instructions": "You are an HR bot, and you have access to files to answer employee questions about company policies. Always response with info from either of the files.",
+          "tools": [
+            {
+              "type": "file_search"
+            }
+          ],
+          "tool_resources": {
+            "file_search": {
+              "vector_store_ids": []
+            }
+          },
+          "metadata": {},
+          "top_p": 1.0,
+          "temperature": 1.0,
+          "response_format": "auto"
+        }
+      },
+      {
+        "name": "Delete assistant",
+        "version": "Beta",
+        "method": "DELETE",
+        "url": "https://api.openai.com/v1/assistants/{assistant_id}",
+        "description": "Delete an assistant.",
+        "path_parameters": {
+          "assistant_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the assistant to delete."
+          }
+        },
+        "returns": "Deletion status",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nresponse = client.beta.assistants.delete(\"asst_abc123\")\nprint(response)",
+        "example_response": {
+          "id": "asst_abc123",
+          "object": "assistant.deleted",
+          "deleted": true
+        }
+      }
+    ],
+    "object_definition": {
+      "Assistant": {
+        "id": "string",
+        "object": "assistant",
+        "created_at": "integer",
+        "name": "string or null",
+        "description": "string or null",
+        "model": "string",
+        "instructions": "string or null",
+        "tools": "array",
+        "tool_resources": "object or null",
+        "metadata": "map",
+        "temperature": "number or null",
+        "top_p": "number or null",
+        "response_format": "\"auto\" or object"
+      }
+    }
+  },
+  "Threads": {
+    "description": "Create threads that assistants can interact with.",
+    "related_guide": "Assistants",
+    "endpoints": [
+      {
+        "name": "Create thread",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads",
+        "description": "Create a thread.",
+        "request_body": {
+          "fields": {
+            "messages": {
+              "type": "array",
+              "required": false,
+              "description": "A list of messages to start the thread with."
+            },
+            "tool_resources": {
+              "type": "object or null",
+              "required": false,
+              "description": "A set of resources that are made available to the assistant's tools in this thread."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            }
+          }
+        },
+        "returns": "A thread object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nempty_thread = client.beta.threads.create()\nprint(empty_thread)",
+        "example_response": {
+          "id": "thread_abc123",
+          "object": "thread",
+          "created_at": 1699012949,
+          "metadata": {},
+          "tool_resources": {}
+        }
+      },
+      {
+        "name": "Retrieve thread",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}",
+        "description": "Retrieves a thread.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to retrieve."
+          }
+        },
+        "returns": "The thread object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_thread = client.beta.threads.retrieve(\"thread_abc123\")\nprint(my_thread)",
+        "example_response": {
+          "id": "thread_abc123",
+          "object": "thread",
+          "created_at": 1699014083,
+          "metadata": {},
+          "tool_resources": {
+            "code_interpreter": {
+              "file_ids": []
+            }
+          }
+        }
+      },
+      {
+        "name": "Modify thread",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}",
+        "description": "Modifies a thread.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to modify."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "tool_resources": {
+              "type": "object or null",
+              "required": false,
+              "description": "A set of resources that are made available to the assistant's tools in this thread."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            }
+          }
+        },
+        "returns": "The modified thread object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmy_updated_thread = client.beta.threads.update(\n  \"thread_abc123\",\n  metadata={\n    \"modified\": \"true\",\n    \"user\": \"abc123\"\n  }\n)\nprint(my_updated_thread)",
+        "example_response": {
+          "id": "thread_abc123",
+          "object": "thread",
+          "created_at": 1699014083,
+          "metadata": {
+            "modified": "true",
+            "user": "abc123"
+          },
+          "tool_resources": {}
+        }
+      },
+      {
+        "name": "Delete thread",
+        "version": "Beta",
+        "method": "DELETE",
+        "url": "https://api.openai.com/v1/threads/{thread_id}",
+        "description": "Delete a thread.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to delete."
+          }
+        },
+        "returns": "Deletion status",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nresponse = client.beta.threads.delete(\"thread_abc123\")\nprint(response)",
+        "example_response": {
+          "id": "thread_abc123",
+          "object": "thread.deleted",
+          "deleted": true
+        }
+      }
+    ],
+    "object_definition": {
+      "Thread": {
+        "id": "string",
+        "object": "thread",
+        "created_at": "integer",
+        "tool_resources": "object or null",
+        "metadata": "map"
+      }
+    }
+  },
+  "Messages": {
+    "description": "Create messages within threads.",
+    "related_guide": "Assistants",
+    "endpoints": [
+      {
+        "name": "Create message",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/messages",
+        "description": "Create a message.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to create a message for."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "role": {
+              "type": "string",
+              "required": true,
+              "description": "The role of the entity that is creating the message. Allowed values include 'user' and 'assistant'."
+            },
+            "content": {
+              "type": "string or array",
+              "required": true,
+              "description": "The content of the message."
+            },
+            "attachments": {
+              "type": "array or null",
+              "required": false,
+              "description": "A list of files attached to the message, and the tools they should be added to."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            }
+          }
+        },
+        "returns": "A message object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nthread_message = client.beta.threads.messages.create(\n  \"thread_abc123\",\n  role=\"user\",\n  content=\"How does AI work? Explain it in simple terms.\"\n)\nprint(thread_message)",
+        "example_response": {
+          "id": "msg_abc123",
+          "object": "thread.message",
+          "created_at": 1713226573,
+          "assistant_id": null,
+          "thread_id": "thread_abc123",
+          "run_id": null,
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": {
+                "value": "How does AI work? Explain it in simple terms.",
+                "annotations": []
+              }
+            }
+          ],
+          "attachments": [],
+          "metadata": {}
+        }
+      },
+      {
+        "name": "List messages",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/messages",
+        "description": "Returns a list of messages for a given thread.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread the messages belong to."
+          }
+        },
+        "query_parameters": {
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "default": 20,
+            "description": "A limit on the number of objects to be returned. Range: 1 to 100."
+          },
+          "order": {
+            "type": "string",
+            "required": false,
+            "default": "desc",
+            "description": "Sort order by the created_at timestamp. Use 'asc' or 'desc'."
+          },
+          "after": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination. Defines your place in the list."
+          },
+          "before": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination. Defines your place in the list."
+          },
+          "run_id": {
+            "type": "string",
+            "required": false,
+            "description": "Filter messages by the run ID that generated them."
+          }
+        },
+        "returns": "A list of message objects.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nthread_messages = client.beta.threads.messages.list(\"thread_abc123\")\nprint(thread_messages.data)",
+        "example_response": {
+          "object": "list",
+          "data": [
+            {
+              "id": "msg_abc123",
+              "object": "thread.message",
+              "created_at": 1699016383,
+              "assistant_id": null,
+              "thread_id": "thread_abc123",
+              "run_id": null,
+              "role": "user",
+              "content": [
+                {
+                  "type": "text",
+                  "text": {
+                    "value": "How does AI work? Explain it in simple terms.",
+                    "annotations": []
+                  }
+                }
+              ],
+              "attachments": [],
+              "metadata": {}
+            },
+            {
+              "id": "msg_abc456",
+              "object": "thread.message",
+              "created_at": 1699016383,
+              "assistant_id": null,
+              "thread_id": "thread_abc123",
+              "run_id": null,
+              "role": "user",
+              "content": [
+                {
+                  "type": "text",
+                  "text": {
+                    "value": "Hello, what is AI?",
+                    "annotations": []
+                  }
+                }
+              ],
+              "attachments": [],
+              "metadata": {}
+            }
+          ],
+          "first_id": "msg_abc123",
+          "last_id": "msg_abc456",
+          "has_more": false
+        }
+      },
+      {
+        "name": "Retrieve message",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/messages/{message_id}",
+        "description": "Retrieve a message.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which this message belongs."
+          },
+          "message_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the message to retrieve."
+          }
+        },
+        "returns": "The message object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmessage = client.beta.threads.messages.retrieve(\n  message_id=\"msg_abc123\",\n  thread_id=\"thread_abc123\"\n)\nprint(message)",
+        "example_response": {
+          "id": "msg_abc123",
+          "object": "thread.message",
+          "created_at": 1699017614,
+          "assistant_id": null,
+          "thread_id": "thread_abc123",
+          "run_id": null,
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": {
+                "value": "How does AI work? Explain it in simple terms.",
+                "annotations": []
+              }
+            }
+          ],
+          "attachments": [],
+          "metadata": {}
+        }
+      },
+      {
+        "name": "Modify message",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/messages/{message_id}",
+        "description": "Modifies a message.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which this message belongs."
+          },
+          "message_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the message to modify."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            }
+          }
+        },
+        "returns": "The modified message object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nmessage = client.beta.threads.messages.update(\n  message_id=\"msg_abc12\",\n  thread_id=\"thread_abc123\",\n  metadata={\n    \"modified\": \"true\",\n    \"user\": \"abc123\"\n  }\n)\nprint(message)",
+        "example_response": {
+          "id": "msg_abc123",
+          "object": "thread.message",
+          "created_at": 1699017614,
+          "assistant_id": null,
+          "thread_id": "thread_abc123",
+          "run_id": null,
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": {
+                "value": "How does AI work? Explain it in simple terms.",
+                "annotations": []
+              }
+            }
+          ],
+          "file_ids": [],
+          "metadata": {
+            "modified": "true",
+            "user": "abc123"
+          }
+        }
+      },
+      {
+        "name": "Delete message",
+        "version": "Beta",
+        "method": "DELETE",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/messages/{message_id}",
+        "description": "Deletes a message.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which this message belongs."
+          },
+          "message_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the message to delete."
+          }
+        },
+        "returns": "Deletion status",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\ndeleted_message = client.beta.threads.messages.delete(\n  message_id=\"msg_abc12\",\n  thread_id=\"thread_abc123\"\n)\nprint(deleted_message)",
+        "example_response": {
+          "id": "msg_abc123",
+          "object": "thread.message.deleted",
+          "deleted": true
+        }
+      }
+    ],
+    "object_definition": {
+      "Message": {
+        "id": "string",
+        "object": "thread.message",
+        "created_at": "integer",
+        "thread_id": "string",
+        "status": "string",
+        "incomplete_details": "object or null",
+        "completed_at": "integer or null",
+        "incomplete_at": "integer or null",
+        "role": "string",
+        "content": "array",
+        "assistant_id": "string or null",
+        "run_id": "string or null",
+        "attachments": "array or null",
+        "metadata": "map"
+      }
+    }
+  },
+  "Runs": {
+    "description": "Represents an execution run on a thread.",
+    "related_guide": "Assistants",
+    "endpoints": [
+      {
+        "name": "Create run",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs",
+        "description": "Create a run.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to run."
+          }
+        },
+        "query_parameters": {
+          "include[]": {
+            "type": "array",
+            "required": false,
+            "description": "A list of additional fields to include in the response."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "assistant_id": {
+              "type": "string",
+              "required": true,
+              "description": "The ID of the assistant to use to execute this run."
+            },
+            "model": {
+              "type": "string",
+              "required": false,
+              "description": "The ID of the Model to be used to execute this run. If provided, overrides the model associated with the assistant."
+            },
+            "instructions": {
+              "type": "string or null",
+              "required": false,
+              "description": "Overrides the instructions of the assistant. Useful for modifying the behavior on a per-run basis."
+            },
+            "additional_instructions": {
+              "type": "string or null",
+              "required": false,
+              "description": "Appends additional instructions at the end of the instructions for the run."
+            },
+            "additional_messages": {
+              "type": "array or null",
+              "required": false,
+              "description": "Adds additional messages to the thread before creating the run."
+            },
+            "tools": {
+              "type": "array or null",
+              "required": false,
+              "description": "Override the tools the assistant can use for this run."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            },
+            "temperature": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "What sampling temperature to use, between 0 and 2."
+            },
+            "top_p": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "Nucleus sampling value."
+            },
+            "stream": {
+              "type": "boolean or null",
+              "required": false,
+              "description": "If true, returns a stream of events as server-sent events."
+            },
+            "max_prompt_tokens": {
+              "type": "integer or null",
+              "required": false,
+              "description": "The maximum number of prompt tokens that may be used over the course of the run."
+            },
+            "max_completion_tokens": {
+              "type": "integer or null",
+              "required": false,
+              "description": "The maximum number of completion tokens that may be used over the course of the run."
+            },
+            "truncation_strategy": {
+              "type": "object",
+              "required": false,
+              "description": "Controls for how a thread will be truncated prior to the run."
+            },
+            "tool_choice": {
+              "type": "string or object",
+              "required": false,
+              "description": "Controls which (if any) tool is called by the model. Options: 'none', 'auto', 'required', or a specific tool configuration."
+            },
+            "parallel_tool_calls": {
+              "type": "boolean",
+              "required": false,
+              "default": true,
+              "description": "Whether to enable parallel function calling during tool use."
+            },
+            "response_format": {
+              "type": "\"auto\" or object",
+              "required": false,
+              "description": "Specifies the format that the model must output. Compatible with GPT-4o, GPT-4 Turbo, and all GPT-3.5 Turbo models since gpt-3.5-turbo-1106."
+            }
+          }
+        },
+        "returns": "A run object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.runs.create(\n  thread_id=\"thread_abc123\",\n  assistant_id=\"asst_abc123\"\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_abc123",
+          "object": "thread.run",
+          "created_at": 1699063290,
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "status": "queued",
+          "started_at": 1699063290,
+          "expires_at": null,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": 1699063291,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": null,
+          "incomplete_details": null,
+          "tools": [
+            {
+              "type": "code_interpreter"
+            }
+          ],
+          "metadata": {},
+          "usage": null,
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "max_prompt_tokens": 1000,
+          "max_completion_tokens": 1000,
+          "truncation_strategy": {
+            "type": "auto",
+            "last_messages": null
+          },
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      },
+      {
+        "name": "Create thread and run",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/runs",
+        "description": "Create a thread and run it in one request.",
+        "request_body": {
+          "fields": {
+            "assistant_id": {
+              "type": "string",
+              "required": true,
+              "description": "The ID of the assistant to use to execute this run."
+            },
+            "thread": {
+              "type": "object",
+              "required": false,
+              "description": "Options to create a new thread. If no thread is provided, an empty thread will be created."
+            },
+            "model": {
+              "type": "string",
+              "required": false,
+              "description": "The ID of the Model to be used to execute this run. Overrides the assistant's model if provided."
+            },
+            "instructions": {
+              "type": "string or null",
+              "required": false,
+              "description": "Override the default system message of the assistant."
+            },
+            "tools": {
+              "type": "array or null",
+              "required": false,
+              "description": "Override the tools the assistant can use for this run."
+            },
+            "tool_resources": {
+              "type": "object or null",
+              "required": false,
+              "description": "A set of resources that are used by the assistant's tools."
+            },
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            },
+            "temperature": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "What sampling temperature to use, between 0 and 2."
+            },
+            "top_p": {
+              "type": "number or null",
+              "required": false,
+              "default": 1,
+              "description": "Nucleus sampling value."
+            },
+            "stream": {
+              "type": "boolean or null",
+              "required": false,
+              "description": "If true, returns a stream of events as server-sent events."
+            },
+            "max_prompt_tokens": {
+              "type": "integer or null",
+              "required": false,
+              "description": "The maximum number of prompt tokens that may be used over the course of the run."
+            },
+            "max_completion_tokens": {
+              "type": "integer or null",
+              "required": false,
+              "description": "The maximum number of completion tokens that may be used over the course of the run."
+            },
+            "truncation_strategy": {
+              "type": "object",
+              "required": false,
+              "description": "Controls for how a thread will be truncated prior to the run."
+            },
+            "tool_choice": {
+              "type": "string or object",
+              "required": false,
+              "description": "Controls which (if any) tool is called by the model."
+            },
+            "parallel_tool_calls": {
+              "type": "boolean",
+              "required": false,
+              "default": true,
+              "description": "Whether to enable parallel function calling during tool use."
+            },
+            "response_format": {
+              "type": "\"auto\" or object",
+              "required": false,
+              "description": "Specifies the format that the model must output."
+            }
+          }
+        },
+        "returns": "A run object.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.create_and_run(\n  assistant_id=\"asst_abc123\",\n  thread={\n    \"messages\": [\n      {\"role\": \"user\", \"content\": \"Explain deep learning to a 5 year old.\"}\n    ]\n  }\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_abc123",
+          "object": "thread.run",
+          "created_at": 1699076792,
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "status": "queued",
+          "started_at": null,
+          "expires_at": 1699077392,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": null,
+          "required_action": null,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": "You are a helpful assistant.",
+          "tools": [],
+          "tool_resources": {},
+          "metadata": {},
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "max_completion_tokens": null,
+          "max_prompt_tokens": null,
+          "truncation_strategy": {
+            "type": "auto",
+            "last_messages": null
+          },
+          "incomplete_details": null,
+          "usage": null,
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      },
+      {
+        "name": "List runs",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs",
+        "description": "Returns a list of runs belonging to a thread.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread the run belongs to."
+          }
+        },
+        "query_parameters": {
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "default": 20,
+            "description": "A limit on the number of objects to be returned. Range: 1 to 100."
+          },
+          "order": {
+            "type": "string",
+            "required": false,
+            "default": "desc",
+            "description": "Sort order by the created_at timestamp. Use 'asc' or 'desc'."
+          },
+          "after": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination."
+          },
+          "before": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination."
+          }
+        },
+        "returns": "A list of run objects.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nruns = client.beta.threads.runs.list(\"thread_abc123\")\n\nprint(runs)",
+        "example_response": {
+          "object": "list",
+          "data": [
+            {
+              "id": "run_abc123",
+              "object": "thread.run",
+              "created_at": 1699075072,
+              "assistant_id": "asst_abc123",
+              "thread_id": "thread_abc123",
+              "status": "completed",
+              "started_at": 1699075072,
+              "expires_at": null,
+              "cancelled_at": null,
+              "failed_at": null,
+              "completed_at": 1699075073,
+              "last_error": null,
+              "model": "gpt-4o",
+              "instructions": null,
+              "incomplete_details": null,
+              "tools": [
+                {
+                  "type": "code_interpreter"
+                }
+              ],
+              "tool_resources": {
+                "code_interpreter": {
+                  "file_ids": [
+                    "file-abc123",
+                    "file-abc456"
+                  ]
+                }
+              },
+              "metadata": {},
+              "usage": {
+                "prompt_tokens": 123,
+                "completion_tokens": 456,
+                "total_tokens": 579
+              },
+              "temperature": 1.0,
+              "top_p": 1.0,
+              "max_prompt_tokens": 1000,
+              "max_completion_tokens": 1000,
+              "truncation_strategy": {
+                "type": "auto",
+                "last_messages": null
+              },
+              "response_format": "auto",
+              "tool_choice": "auto",
+              "parallel_tool_calls": true
+            },
+            {
+              "id": "run_abc456",
+              "object": "thread.run",
+              "created_at": 1699063290,
+              "assistant_id": "asst_abc123",
+              "thread_id": "thread_abc123",
+              "status": "completed",
+              "started_at": 1699063290,
+              "expires_at": null,
+              "cancelled_at": null,
+              "failed_at": null,
+              "completed_at": 1699063291,
+              "last_error": null,
+              "model": "gpt-4o",
+              "instructions": null,
+              "incomplete_details": null,
+              "tools": [
+                {
+                  "type": "code_interpreter"
+                }
+              ],
+              "tool_resources": {
+                "code_interpreter": {
+                  "file_ids": [
+                    "file-abc123",
+                    "file-abc456"
+                  ]
+                }
+              },
+              "metadata": {},
+              "usage": {
+                "prompt_tokens": 123,
+                "completion_tokens": 456,
+                "total_tokens": 579
+              },
+              "temperature": 1.0,
+              "top_p": 1.0,
+              "max_prompt_tokens": 1000,
+              "max_completion_tokens": 1000,
+              "truncation_strategy": {
+                "type": "auto",
+                "last_messages": null
+              },
+              "response_format": "auto",
+              "tool_choice": "auto",
+              "parallel_tool_calls": true
+            }
+          ],
+          "first_id": "run_abc123",
+          "last_id": "run_abc456",
+          "has_more": false
+        }
+      },
+      {
+        "name": "Retrieve run",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}",
+        "description": "Retrieves a run.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread that was run."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run to retrieve."
+          }
+        },
+        "returns": "The run object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.runs.retrieve(\n  thread_id=\"thread_abc123\",\n  run_id=\"run_abc123\"\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_abc123",
+          "object": "thread.run",
+          "created_at": 1699075072,
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "status": "completed",
+          "started_at": 1699075072,
+          "expires_at": null,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": 1699075073,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": null,
+          "incomplete_details": null,
+          "tools": [
+            {
+              "type": "code_interpreter"
+            }
+          ],
+          "metadata": {},
+          "usage": {
+            "prompt_tokens": 123,
+            "completion_tokens": 456,
+            "total_tokens": 579
+          },
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "max_prompt_tokens": 1000,
+          "max_completion_tokens": 1000,
+          "truncation_strategy": {
+            "type": "auto",
+            "last_messages": null
+          },
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      },
+      {
+        "name": "Modify run",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}",
+        "description": "Modifies a run.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread that was run."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run to modify."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "metadata": {
+              "type": "map",
+              "required": false,
+              "description": "Set of 16 key-value pairs that can be attached to an object."
+            }
+          }
+        },
+        "returns": "The modified run object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.runs.update(\n  thread_id=\"thread_abc123\",\n  run_id=\"run_abc123\",\n  metadata={\"user_id\": \"user_abc123\"}\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_abc123",
+          "object": "thread.run",
+          "created_at": 1699075072,
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "status": "completed",
+          "started_at": 1699075072,
+          "expires_at": null,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": 1699075073,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": null,
+          "incomplete_details": null,
+          "tools": [
+            {
+              "type": "code_interpreter"
+            }
+          ],
+          "tool_resources": {
+            "code_interpreter": {
+              "file_ids": [
+                "file-abc123",
+                "file-abc456"
+              ]
+            }
+          },
+          "metadata": {
+            "user_id": "user_abc123"
+          },
+          "usage": {
+            "prompt_tokens": 123,
+            "completion_tokens": 456,
+            "total_tokens": 579
+          },
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "max_prompt_tokens": 1000,
+          "max_completion_tokens": 1000,
+          "truncation_strategy": {
+            "type": "auto",
+            "last_messages": null
+          },
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      },
+      {
+        "name": "Submit tool outputs to run",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}/submit_tool_outputs",
+        "description": "When a run has the status 'requires_action' and required_action.type is submit_tool_outputs, this endpoint can be used to submit the outputs from the tool calls once they're all completed. All outputs must be submitted in a single request.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which this run belongs."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run that requires tool output submission."
+          }
+        },
+        "request_body": {
+          "fields": {
+            "tool_outputs": {
+              "type": "array",
+              "required": true,
+              "description": "A list of tools for which the outputs are being submitted."
+            },
+            "stream": {
+              "type": "boolean or null",
+              "required": false,
+              "description": "If true, returns a stream of events as server-sent events."
+            }
+          }
+        },
+        "returns": "The modified run object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.runs.submit_tool_outputs(\n  thread_id=\"thread_123\",\n  run_id=\"run_123\",\n  tool_outputs=[\n    {\n      \"tool_call_id\": \"call_001\",\n      \"output\": \"70 degrees and sunny.\"\n    }\n  ]\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_123",
+          "object": "thread.run",
+          "created_at": 1699075592,
+          "assistant_id": "asst_123",
+          "thread_id": "thread_123",
+          "status": "queued",
+          "started_at": 1699075592,
+          "expires_at": 1699076192,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": null,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": null,
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather in a given location",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "location": {
+                      "type": "string",
+                      "description": "The city and state, e.g. San Francisco, CA"
+                    },
+                    "unit": {
+                      "type": "string",
+                      "enum": [
+                        "celsius",
+                        "fahrenheit"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "location"
+                  ]
+                }
+              }
+            }
+          ],
+          "metadata": {},
+          "usage": null,
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "max_prompt_tokens": 1000,
+          "max_completion_tokens": 1000,
+          "truncation_strategy": {
+            "type": "auto",
+            "last_messages": null
+          },
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      },
+      {
+        "name": "Cancel a run",
+        "version": "Beta",
+        "method": "POST",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}/cancel",
+        "description": "Cancels a run that is in_progress.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which this run belongs."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run to cancel."
+          }
+        },
+        "returns": "The modified run object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun = client.beta.threads.runs.cancel(\n  thread_id=\"thread_abc123\",\n  run_id=\"run_abc123\"\n)\n\nprint(run)",
+        "example_response": {
+          "id": "run_abc123",
+          "object": "thread.run",
+          "created_at": 1699076126,
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "status": "cancelling",
+          "started_at": 1699076126,
+          "expires_at": 1699076726,
+          "cancelled_at": null,
+          "failed_at": null,
+          "completed_at": null,
+          "last_error": null,
+          "model": "gpt-4o",
+          "instructions": "You summarize books.",
+          "tools": [
+            {
+              "type": "file_search"
+            }
+          ],
+          "tool_resources": {
+            "file_search": {
+              "vector_store_ids": [
+                "vs_123"
+              ]
+            }
+          },
+          "metadata": {},
+          "usage": null,
+          "temperature": 1.0,
+          "top_p": 1.0,
+          "response_format": "auto",
+          "tool_choice": "auto",
+          "parallel_tool_calls": true
+        }
+      }
+    ],
+    "object_definition": {
+      "Run": {
+        "id": "string",
+        "object": "thread.run",
+        "created_at": "integer",
+        "thread_id": "string",
+        "assistant_id": "string",
+        "status": "string",
+        "required_action": "object or null",
+        "last_error": "object or null",
+        "expires_at": "integer or null",
+        "started_at": "integer or null",
+        "cancelled_at": "integer or null",
+        "failed_at": "integer or null",
+        "completed_at": "integer or null",
+        "incomplete_details": "object or null",
+        "model": "string",
+        "instructions": "string",
+        "tools": "array",
+        "metadata": "map",
+        "usage": "object or null",
+        "temperature": "number or null",
+        "top_p": "number or null",
+        "max_prompt_tokens": "integer or null",
+        "max_completion_tokens": "integer or null",
+        "truncation_strategy": "object",
+        "response_format": "\"auto\" or object",
+        "tool_choice": "string or object",
+        "parallel_tool_calls": "boolean"
+      }
+    }
+  },
+  "RunSteps": {
+    "description": "Represents the steps (model and tool calls) taken during the run.",
+    "related_guide": "Assistants",
+    "endpoints": [
+      {
+        "name": "List run steps",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}/steps",
+        "description": "Returns a list of run steps belonging to a run.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread the run and run steps belong to."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run the run steps belong to."
+          }
+        },
+        "query_parameters": {
+          "limit": {
+            "type": "integer",
+            "required": false,
+            "default": 20,
+            "description": "A limit on the number of objects to be returned. Range: 1 to 100."
+          },
+          "order": {
+            "type": "string",
+            "required": false,
+            "default": "desc",
+            "description": "Sort order by the created_at timestamp. Use 'asc' or 'desc'."
+          },
+          "after": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination."
+          },
+          "before": {
+            "type": "string",
+            "required": false,
+            "description": "Cursor for pagination."
+          },
+          "include[]": {
+            "type": "array",
+            "required": false,
+            "description": "A list of additional fields to include in the response. Currently the only supported value is step_details.tool_calls[*].file_search.results[*].content to fetch the file search result content."
+          }
+        },
+        "returns": "A list of run step objects.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun_steps = client.beta.threads.runs.steps.list(\n    thread_id=\"thread_abc123\",\n    run_id=\"run_abc123\"\n)\n\nprint(run_steps)",
+        "example_response": {
+          "object": "list",
+          "data": [
+            {
+              "id": "step_abc123",
+              "object": "thread.run.step",
+              "created_at": 1699063291,
+              "run_id": "run_abc123",
+              "assistant_id": "asst_abc123",
+              "thread_id": "thread_abc123",
+              "type": "message_creation",
+              "status": "completed",
+              "cancelled_at": null,
+              "completed_at": 1699063291,
+              "expired_at": null,
+              "failed_at": null,
+              "last_error": null,
+              "step_details": {
+                "type": "message_creation",
+                "message_creation": {
+                  "message_id": "msg_abc123"
+                }
+              },
+              "usage": {
+                "prompt_tokens": 123,
+                "completion_tokens": 456,
+                "total_tokens": 579
+              }
+            }
+          ],
+          "first_id": "step_abc123",
+          "last_id": "step_abc456",
+          "has_more": false
+        }
+      },
+      {
+        "name": "Retrieve run step",
+        "version": "Beta",
+        "method": "GET",
+        "url": "https://api.openai.com/v1/threads/{thread_id}/runs/{run_id}/steps/{step_id}",
+        "description": "Retrieves a run step.",
+        "path_parameters": {
+          "thread_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the thread to which the run and run step belong."
+          },
+          "run_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run to which the run step belongs."
+          },
+          "step_id": {
+            "type": "string",
+            "required": true,
+            "description": "The ID of the run step to retrieve."
+          }
+        },
+        "query_parameters": {
+          "include[]": {
+            "type": "array",
+            "required": false,
+            "description": "A list of additional fields to include in the response. Currently the only supported value is step_details.tool_calls[*].file_search.results[*].content to fetch the file search result content."
+          }
+        },
+        "returns": "The run step object matching the specified ID.",
+        "example_request": "from openai import OpenAI\nclient = OpenAI()\n\nrun_step = client.beta.threads.runs.steps.retrieve(\n    thread_id=\"thread_abc123\",\n    run_id=\"run_abc123\",\n    step_id=\"step_abc123\"\n)\n\nprint(run_step)",
+        "example_response": {
+          "id": "step_abc123",
+          "object": "thread.run.step",
+          "created_at": 1699063291,
+          "run_id": "run_abc123",
+          "assistant_id": "asst_abc123",
+          "thread_id": "thread_abc123",
+          "type": "message_creation",
+          "status": "completed",
+          "cancelled_at": null,
+          "completed_at": 1699063291,
+          "expired_at": null,
+          "failed_at": null,
+          "last_error": null,
+          "step_details": {
+            "type": "message_creation",
+            "message_creation": {
+              "message_id": "msg_abc123"
+            }
+          },
+          "usage": {
+            "prompt_tokens": 123,
+            "completion_tokens": 456,
+            "total_tokens": 579
+          }
+        }
+      }
+    ]
+  }
+}

@@ -6,30 +6,32 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="header">
-    <img src="dhc-logo.png" alt="Dave's Hot Chicken" class="logo">
-    <h1>Ask Dave</h1>
-    <p class="tagline">FLOCK AROUND AND FIND OUT</p>
-  </div>
-  <div class="quick-actions">
-    <button class="action-btn" data-query="Tell me about DHC's brand voice">BRAND VOICE</button>
-    <button class="action-btn" data-query="What are DHC's current marketing priorities?">MARKETING</button>
-    <button class="action-btn" data-query="How do we maintain street cred while scaling?">CULTURE</button>
-    <button class="action-btn" data-query="What makes DHC's chicken special?">PRODUCT</button>
-  </div>
-  <div class="chat-container">
-    <div id="chat-log"></div>
-    <div class="input-area">
-      <input type="text" id="user-input" placeholder="Enter your message...">
-      <button id="send-btn">Send</button>
-      <div id="loading" class="loading hidden">...</div>
+  <div class="main-content">
+    <div class="header">
+      <img src="dhc-logo.png" alt="Dave's Hot Chicken" class="logo">
+      <h1>Ask Dave</h1>
+      <p class="tagline">FLOCK AROUND AND FIND OUT</p>
+    </div>
+    <div class="quick-actions">
+      <button class="action-btn" data-query="Tell me about DHC's brand voice">BRAND VOICE</button>
+      <button class="action-btn" data-query="What are DHC's current marketing priorities?">MARKETING</button>
+      <button class="action-btn" data-query="How do we maintain street cred while scaling?">CULTURE</button>
+      <button class="action-btn" data-query="What makes DHC's chicken special?">PRODUCT</button>
+    </div>
+    <div class="chat-container">
+      <div id="chat-log"></div>
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="Enter your message...">
+        <button id="send-btn">
+          Send
+        </button>
+      </div>
     </div>
   </div>
   <script>
     const sendBtn = document.getElementById('send-btn');
     const userInput = document.getElementById('user-input');
     const chatLog = document.getElementById('chat-log');
-    const loading = document.getElementById('loading');
     
     // Add quick action button functionality
     document.querySelectorAll('.action-btn').forEach(button => {
@@ -44,29 +46,51 @@
         const message = userInput.value;
         if (!message) return;
         
+        // Get button elements
+        const sendBtn = document.getElementById('send-btn');
+        
         // Show user message
         addMessage(message, 'user');
         userInput.value = '';
-        loading.classList.remove('hidden');
+        
+        // Show loading state
+        sendBtn.disabled = true;
+        let dots = 0;
+        const loadingInterval = setInterval(() => {
+            // Pad with spaces to match "Send" length
+            sendBtn.textContent = '.'.repeat(dots + 1).padEnd(4);
+            dots = (dots + 1) % 3;
+        }, 500);
         
         try {
             const response = await fetch('/api/assistant', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({message})
             });
             
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Server error');
             }
             
             const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
             addMessage(data.response, 'bot');
         } catch (error) {
             console.error('Error:', error);
-            addMessage('Sorry, something went wrong. Please try again.', 'bot');
+            addMessage(`Sorry, something went wrong: ${error.message}`, 'bot');
         } finally {
-            loading.classList.add('hidden');
+            // Reset button state
+            clearInterval(loadingInterval);
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Send";
         }
     }
 
@@ -75,7 +99,7 @@
         messageDiv.className = `message ${sender}`;
         
         const name = sender === 'bot' ? 'Dave 🔥' : 'You';
-        messageDiv.innerHTML = `<strong>${name}:</strong> ${text}`;
+        messageDiv.innerHTML = `<strong class="bot-name">${name}:</strong> ${text.replace(/\n/g, '<br>')}`;
         
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
