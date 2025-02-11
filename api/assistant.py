@@ -131,10 +131,14 @@ class Handler:
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'POST, OPTIONS',
-            'Access-Control-Allow-Headers': 'Content-Type'
+            'Access-Control-Allow-Headers': 'Content-Type, Accept',
+            'Content-Length': str(len(json.dumps(error_details)))
         }
         body = json.dumps(error_details)
-        self._write_response(500, headers, body)
+        try:
+            self._write_response(500, headers, body)
+        except Exception as write_error:
+            print(f"Error writing response: {write_error}")
 
     def _parse_multipart(self, content_type, content_length):
         """Parse multipart form data"""

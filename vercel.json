@@ -18,11 +18,6 @@
       "methods": ["POST", "OPTIONS"],
       "dest": "api/assistant.py"
     },
-    {
-      "src": "/api/upload",
-      "methods": ["POST", "OPTIONS"],
-      "dest": "api/assistant.py"
-    },
     { "src": "/(.*)", "dest": "/$1" }
   ]
 }

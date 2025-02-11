@@ -73,20 +73,20 @@
                 body: JSON.stringify({message})
             });
             
+            const data = await response.json();
+            
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error?.message || 'Server error');
+                throw new Error(data.error?.message || 'A server error has occurred');
             }
             
-            const data = await response.json();
             if (data.error) {
                 throw new Error(data.error?.message || 'Unknown error');
             }
             
             addMessage(data.response, 'bot');
         } catch (error) {
-            console.error('Error:', error);
-            addMessage(`Sorry, something went wrong. Please try again in a moment.`, 'bot');
+            console.error('Error details:', error);
+            addMessage(`Sorry, I encountered an error. Please try again in a moment.`, 'bot');
         } finally {
             // Reset button state
             clearInterval(loadingInterval);
