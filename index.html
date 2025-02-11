@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>Ask Dave - Dave's Hot Chicken</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
 </head>
 <body>
   <div class="main-content">
@@ -74,18 +75,18 @@
             
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || 'Server error');
+                throw new Error(errorData.error?.message || 'Server error');
             }
             
             const data = await response.json();
             if (data.error) {
-                throw new Error(data.error);
+                throw new Error(data.error?.message || 'Unknown error');
             }
             
             addMessage(data.response, 'bot');
         } catch (error) {
             console.error('Error:', error);
-            addMessage(`Sorry, something went wrong: ${error.message}`, 'bot');
+            addMessage(`Sorry, something went wrong. Please try again in a moment.`, 'bot');
         } finally {
             // Reset button state
             clearInterval(loadingInterval);

@@ -119,13 +119,14 @@ class Handler:
 
     def handle_error(self, e):
         error_details = {
-            "error": str(e),
-            "type": str(type(e).__name__),
-            "assistant_id": ASSISTANT_ID,
-            "thread_id": self.thread_id
+            "error": {
+                "message": str(e),
+                "type": str(type(e).__name__),
+                "assistant_id": ASSISTANT_ID,
+                "thread_id": self.thread_id
+            }
         }
         print(f"Full error details: {json.dumps(error_details)}")
-        # Always include CORS headers even in error responses
         headers = {
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*',
