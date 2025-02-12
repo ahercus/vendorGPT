@@ -3,6 +3,7 @@ import json
 import time
 from openai import OpenAI
 import re
+from http.server import BaseHTTPRequestHandler
 
 def verify_credentials():
     """Verify API key and Assistant ID before starting server"""
@@ -89,46 +90,41 @@ except Exception as e:
 # Store thread ID in a global variable for Vercel
 THREAD_ID = None
 
-def handler(request):
-    global THREAD_ID
+class Handler(BaseHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
     
-    # Check for initialization errors
-    if INIT_ERROR:
-        return {
-            'statusCode': 500,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Access-Control-Allow-Origin': '*'
-            },
-            'body': json.dumps({
+    def do_OPTIONS(self):
+        self.send_response(200)
+        self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Access-Control-Allow-Methods', 'POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.end_headers()
+    
+    def do_POST(self):
+        global THREAD_ID
+        
+        if INIT_ERROR:
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps({
                 'error': {
                     'message': f'Server initialization failed: {INIT_ERROR}',
                     'type': 'InitializationError'
                 }
-            })
-        }
-    
-    print("\n=== Starting Request Handler ===")
-    print(f"Request method: {request.method}")
-    print(f"Request headers: {dict(request.headers)}")
-    
-    # Handle OPTIONS request
-    if request.method == 'OPTIONS':
-        print("Handling OPTIONS request")
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                'Access-Control-Allow-Headers': 'Content-Type'
-            }
-        }
-    
-    # Handle POST request
-    if request.method == 'POST':
+            }).encode('utf-8'))
+            return
+        
+        print("\n=== Starting Request Handler ===")
+        print(f"Request method: {self.command}")
+        print(f"Request headers: {dict(self.headers)}")
+        
         try:
             print("\n=== Processing POST Request ===")
-            body = json.loads(request.body)
+            content_length = int(self.headers.get('Content-Length', 0))
+            body = json.loads(self.rfile.read(content_length))
             print(f"Request body: {json.dumps(body, indent=2)}")
             message = body.get('message')
             
@@ -176,16 +172,14 @@ def handler(request):
                     )
                     response = messages.data[0].content[0].text.value
                     print(f"Response preview: {response[:100]}...")
-                    return {
-                        'statusCode': 200,
-                        'headers': {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*'
-                        },
-                        'body': json.dumps({
-                            'response': clean_response(response)
-                        })
-                    }
+                    self.send_response(200)
+                    self.send_header('Content-Type', 'application/json')
+                    self.send_header('Access-Control-Allow-Origin', '*')
+                    self.end_headers()
+                    self.wfile.write(json.dumps({
+                        'response': clean_response(response)
+                    }).encode('utf-8'))
+                    return
                 elif run_status.status == "failed":
                     print(f"\n=== Run Failed ===\n{run_status.last_error}")
                     raise Exception(f"Run failed: {run_status.last_error}")
@@ -197,19 +191,17 @@ def handler(request):
             print(f"\n=== Error in Handler ===")
             print(f"Error type: {type(e).__name__}")
             print(f"Error message: {str(e)}")
-            return {
-                'statusCode': 500,
-                'headers': {
-                    'Content-Type': 'application/json',
-                    'Access-Control-Allow-Origin': '*'
-                },
-                'body': json.dumps({
-                    'error': {
-                        'message': str(e),
-                        'type': str(type(e).__name__)
-                    }
-                })
-            }
+            self.send_response(500)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.end_headers()
+            self.wfile.write(json.dumps({
+                'error': {
+                    'message': str(e),
+                    'type': str(type(e).__name__)
+                }
+            }).encode('utf-8'))
+            return
 
 def clean_response(text):
     """Remove source citations from the response while preserving formatting"""
