@@ -2,16 +2,11 @@ import os
 import json
 import time
 from openai import OpenAI
-import sys
-from dotenv import load_dotenv
 import re
 
 def verify_credentials():
     """Verify API key and Assistant ID before starting server"""
     print("\n=== Verifying Credentials ===")
-    
-    # Reload environment variables
-    load_dotenv(override=True)
     
     # Get credentials
     api_key = os.getenv("OPENAI_API_KEY")
@@ -23,11 +18,7 @@ def verify_credentials():
         raise ValueError("ASSISTANT_ID environment variable is not set")
     
     # Initialize client with fresh API key
-    client = OpenAI(
-        api_key=api_key,
-        max_retries=3,
-        timeout=30.0
-    )
+    client = OpenAI(api_key=api_key)
     
     # Check API Key
     print("\nChecking API Key...")
@@ -38,12 +29,12 @@ def verify_credentials():
     except Exception as e:
         print("✗ API Key verification failed!")
         print(f"Error: {str(e)}")
-        sys.exit(1)
+        raise
     
     # Check Assistant ID
     print("\nChecking Assistant ID...")
     try:
-        # Verify assistant exists by attempting to retrieve it
+        # Verify assistant exists
         assistant = client.beta.assistants.retrieve(assistant_id)
         if assistant:
             print("✓ Assistant ID is valid")
@@ -85,7 +76,7 @@ def verify_credentials():
     except Exception as e:
         print("✗ Assistant verification failed!")
         print(f"Error: {str(e)}")
-        sys.exit(1)
+        raise
 
 # Global variables for error tracking
 INIT_ERROR = None
