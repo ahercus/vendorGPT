@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ask Dave - Dave's Hot Chicken</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
+</head>
+<body>
+  <div class="main-content">
+    <div class="header">
+      <img src="dhc-logo.png" alt="Dave's Hot Chicken" class="logo">
+      <h1>Ask Dave</h1>
+      <p class="tagline">FLOCK AROUND AND FIND OUT</p>
+    </div>
+    <div class="quick-actions">
+      <button class="action-btn" data-query="Tell me about DHC's brand voice">BRAND VOICE</button>
+      <button class="action-btn" data-query="What are DHC's current marketing priorities?">MARKETING</button>
+      <button class="action-btn" data-query="How do we maintain street cred while scaling?">CULTURE</button>
+      <button class="action-btn" data-query="What makes DHC's chicken special?">PRODUCT</button>
+    </div>
+    <div class="chat-container">
+      <div id="chat-log"></div>
+      <div class="input-area">
+        <input type="text" id="user-input" placeholder="Enter your message...">
+        <button id="send-btn">
+          Send
+        </button>
+      </div>
+    </div>
+  </div>
+  <script>
+    const sendBtn = document.getElementById('send-btn');
+    const userInput = document.getElementById('user-input');
+    const chatLog = document.getElementById('chat-log');
+    
+    // Add quick action button functionality
+    document.querySelectorAll('.action-btn').forEach(button => {
+      button.addEventListener('click', () => {
+        const query = button.getAttribute('data-query');
+        userInput.value = query;
+        sendMessage();
+      });
+    });
+
+    async function sendMessage() {
+        const message = userInput.value;
+        if (!message) return;
+        
+        // Get button elements
+        const sendBtn = document.getElementById('send-btn');
+        
+        // Show user message
+        addMessage(message, 'user');
+        userInput.value = '';
+        
+        // Show loading state
+        sendBtn.disabled = true;
+        let dots = 0;
+        const loadingInterval = setInterval(() => {
+            // Pad with spaces to match "Send" length
+            sendBtn.textContent = '.'.repeat(dots + 1).padEnd(4);
+            dots = (dots + 1) % 3;
+        }, 500);
+        
+        try {
+            const response = await fetch('/api/assistant', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({message})
+            });
+            
+            let errorMessage = 'A server error has occurred';
+            
+            // Try to get response body even for errors
+            const data = await response.json().catch(e => {
+                console.error('Failed to parse response:', e);
+                return { error: { message: 'Invalid server response' } };
+            });
+            
+            if (!response.ok) {
+                errorMessage = data.error?.message || errorMessage;
+                console.error('Server error details:', data.error);
+                throw new Error(errorMessage);
+            }
+            
+            if (data.error) {
+                errorMessage = data.error?.message || 'Unknown error';
+                console.error('Response error details:', data.error);
+                throw new Error(errorMessage);
+            }
+            
+            addMessage(data.response, 'bot');
+        } catch (error) {
+            console.error('Error details:', error);
+            // Log the full error stack for debugging
+            console.error('Error stack:', error.stack);
+            addMessage(`Sorry, I encountered an error. Please try again in a moment.`, 'bot');
+        } finally {
+            // Reset button state
+            clearInterval(loadingInterval);
+            sendBtn.disabled = false;
+            sendBtn.textContent = "Send";
+        }
+    }
+
+    function addMessage(text, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}`;
+        
+        const name = sender === 'bot' ? 'Dave 🔥' : 'You';
+        messageDiv.innerHTML = `<strong class="bot-name">${name}:</strong> ${text.replace(/\n/g, '<br>')}`;
+        
+        chatLog.appendChild(messageDiv);
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    userInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
+        }
+    });
+
+    // Add initial welcome message
+    window.addEventListener('load', () => {
+        addMessage("Yo! What's good? Whether you're talking brand, culture, or our Nashville hot heat levels - I'm here to keep it 💯", 'bot');
+    });
+  </script>
+</body>
+</html>

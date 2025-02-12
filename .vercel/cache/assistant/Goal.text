@@ -1,0 +1,19 @@
+Let's make a plan to build a webpage that houses a chatbot. 
+
+The role of the chatbot is to act as feedback tool for people who work at Dave's Hot Chicken (DHC). This could include the executive team, the marketing team, franchisees etc. The tool will be an expert in the DHC brand, including understanding it's place in culture right now, as well as an insightful understanding of how the brand is currently perceived. The pov and tone of voice of the chatbot will be consistent with a persona that you should devise, based on how the DHC brand is currently perceived, or a perception it is obviously attempting to achieve. 
+
+Additionally, the chatbot will have an awareness of the context surrounding the business given it's point in the growth cycle. This self-awareness translates to being an expert on what the business and marketing priorities should be. 
+
+In some ways it's part brand cop, brand ambassador or mascot, part surrogate for our client (DHC), and part wise-old chicken. It shouldn't be lame or cheesey. 
+
+Make the plan and be specific and clear about the steps to implement this. I have no coding experience. I will be using Cursor for the first time. The site will need an API key, and front end design. It should be appealing and be consistent with DHC's current brand, including fonts, colors and tone of voice. 
+
+At a minimum the site should have a prompt window similar to chatgpt. There may be a role for other elements like buttons or sliders. That would make it fun, if there was a justifiable use for them. 
+
+I'm assuming we're creating python, html, CSS files. But I don't really know. I do not want to use React.
+
+We can host on Vercel. I  have signed up with them. But I haven't yet successfully deployed anything. That would require some careful instruction. 
+
+Think through developing the role, and refining the concept. Think about styling. Think about an appropriate name. Also cover which files need to be made, and their code. 
+
+My objective is to -  from a single prompt - create a branded chatbot for Dave's Hot Chicken, that is on-brand, up-to-date on QSR culture and its place within it, and fully functioning.
