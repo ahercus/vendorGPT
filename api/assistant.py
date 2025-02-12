@@ -91,8 +91,13 @@ THREAD_ID = None
 def handler(request):
     global THREAD_ID
     
+    print("\n=== Starting Request Handler ===")
+    print(f"Request method: {request.method}")
+    print(f"Request headers: {dict(request.headers)}")
+    
     # Handle OPTIONS request
     if request.method == 'OPTIONS':
+        print("Handling OPTIONS request")
         return {
             'statusCode': 200,
             'headers': {
@@ -105,18 +110,26 @@ def handler(request):
     # Handle POST request
     if request.method == 'POST':
         try:
+            print("\n=== Processing POST Request ===")
             body = json.loads(request.body)
+            print(f"Request body: {json.dumps(body, indent=2)}")
             message = body.get('message')
             
             if not message:
                 raise ValueError("Message is required")
             
+            print(f"\n=== OpenAI Configuration ===")
+            print(f"Assistant ID: {ASSISTANT_ID}")
+            print(f"Thread ID: {THREAD_ID}")
+            
             # Create thread if needed
             if not THREAD_ID:
+                print("Creating new thread...")
                 thread = client.beta.threads.create()
                 THREAD_ID = thread.id
             
             # Add message to thread
+            print("\n=== Adding Message to Thread ===")
             message_obj = client.beta.threads.messages.create(
                 thread_id=THREAD_ID,
                 role="user",
@@ -124,24 +137,28 @@ def handler(request):
             )
             
             # Run assistant
+            print("\n=== Starting Assistant Run ===")
             run = client.beta.threads.runs.create(
                 thread_id=THREAD_ID,
                 assistant_id=ASSISTANT_ID
             )
             
-            # Wait for completion
+            # Wait for completion (reduced timeout for Vercel)
             start_time = time.time()
-            while time.time() - start_time < 30:
+            while time.time() - start_time < 10:  # Reduced timeout for Vercel
                 run_status = client.beta.threads.runs.retrieve(
                     thread_id=THREAD_ID,
                     run_id=run.id
                 )
+                print(f"Run status: {run_status.status}")
                 
                 if run_status.status == "completed":
+                    print("\n=== Getting Response ===")
                     messages = client.beta.threads.messages.list(
                         thread_id=THREAD_ID
                     )
                     response = messages.data[0].content[0].text.value
+                    print(f"Response preview: {response[:100]}...")
                     return {
                         'statusCode': 200,
                         'headers': {
@@ -153,12 +170,16 @@ def handler(request):
                         })
                     }
                 elif run_status.status == "failed":
+                    print(f"\n=== Run Failed ===\n{run_status.last_error}")
                     raise Exception(f"Run failed: {run_status.last_error}")
                 time.sleep(1)
             
             raise TimeoutError("Assistant took too long to respond")
             
         except Exception as e:
+            print(f"\n=== Error in Handler ===")
+            print(f"Error type: {type(e).__name__}")
+            print(f"Error message: {str(e)}")
             return {
                 'statusCode': 500,
                 'headers': {
