@@ -17,6 +17,11 @@ def verify_credentials():
     api_key = os.getenv("OPENAI_API_KEY")
     assistant_id = os.getenv("ASSISTANT_ID")
     
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable is not set")
+    if not assistant_id:
+        raise ValueError("ASSISTANT_ID environment variable is not set")
+    
     # Initialize client with fresh API key
     client = OpenAI(
         api_key=api_key,
@@ -82,14 +87,35 @@ def verify_credentials():
         print(f"Error: {str(e)}")
         sys.exit(1)
 
-# Get verified client and assistant ID
-client, ASSISTANT_ID = verify_credentials()
+# Global variables for error tracking
+INIT_ERROR = None
+try:
+    client, ASSISTANT_ID = verify_credentials()
+except Exception as e:
+    INIT_ERROR = str(e)
+    print(f"Initialization error: {INIT_ERROR}")
 
 # Store thread ID in a global variable for Vercel
 THREAD_ID = None
 
 def handler(request):
     global THREAD_ID
+    
+    # Check for initialization errors
+    if INIT_ERROR:
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'error': {
+                    'message': f'Server initialization failed: {INIT_ERROR}',
+                    'type': 'InitializationError'
+                }
+            })
+        }
     
     print("\n=== Starting Request Handler ===")
     print(f"Request method: {request.method}")
