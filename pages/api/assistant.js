@@ -1,4 +1,4 @@
-import { OpenAI } from 'openai';
+import OpenAI from 'openai';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -65,72 +65,49 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message } = req.body;
+    const { message, threadId } = req.body;
     
     if (!message) {
       throw new Error('Message is required');
     }
 
-    // Create thread if needed
-    if (!THREAD_ID) {
-      const thread = await openai.beta.threads.create();
-      THREAD_ID = thread.id;
-    }
+    // Use provided thread ID or create new one
+    const currentThreadId = threadId || (await openai.beta.threads.create()).id;
 
-    // Add message to thread
-    await openai.beta.threads.messages.create(
-      THREAD_ID,
-      {
-        role: 'user',
-        content: message
-      }
-    );
+    // Add the message to the thread
+    await openai.beta.threads.messages.create(currentThreadId, {
+      role: 'user',
+      content: message,
+    });
 
-    // Run assistant
-    const run = await openai.beta.threads.runs.create(
-      THREAD_ID,
-      { assistant_id: process.env.ASSISTANT_ID }
-    );
+    // Run the assistant
+    const run = await openai.beta.threads.runs.create(currentThreadId, {
+      assistant_id: process.env.ASSISTANT_ID,
+    });
 
-    // Wait for completion with longer timeout
+    // Wait for the run to complete
     let runStatus;
-    const startTime = Date.now();
-    const TIMEOUT = 30000; // 30 second timeout
-    
-    while (Date.now() - startTime < TIMEOUT) {
-      runStatus = await openai.beta.threads.runs.retrieve(
-        THREAD_ID,
-        run.id
-      );
-
+    while (true) {
+      runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
+      
       if (runStatus.status === 'completed') {
-        const messages = await openai.beta.threads.messages.list(THREAD_ID);
+        const messages = await openai.beta.threads.messages.list(currentThreadId);
         const response = messages.data[0].content[0].text.value;
-        
-        return res.status(200).json({ 
-          response: cleanResponse(response)
-        });
+        return res.status(200).json({ response: cleanResponse(response) });
       }
 
       if (runStatus.status === 'failed') {
         throw new Error(`Run failed: ${runStatus.last_error}`);
       }
 
-      if (runStatus.status === 'expired') {
-        throw new Error('Assistant run expired');
-      }
-
-      // Add small delay between checks
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
-
-    throw new Error('Request timed out. Please try again.');
 
   } catch (error) {
     console.error('Error:', error);
     return res.status(500).json({
       error: {
-        message: error.message || 'An unexpected error occurred',
+        message: error.message,
         type: error.constructor.name
       }
     });

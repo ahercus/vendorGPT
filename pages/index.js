@@ -12,10 +12,10 @@ export default function Home() {
   const [loadingDots, setLoadingDots] = useState('');
 
   const quickActions = [
-    { label: 'BRAND VOICE', query: "Tell me about DHC's brand voice" },
-    { label: 'MARKETING', query: "What are DHC's current marketing priorities?" },
-    { label: 'CULTURE', query: "How do we maintain street cred while scaling?" },
-    { label: 'PRODUCT', query: "What makes DHC's chicken special?" }
+    { label: 'TALK LIKE DAVE', query: "I have some words here, and I need help translating it into Dave's tone and style." },
+    { label: 'ON BRAND?', query: "I have an idea, but I don't know if it's on brand. Ready to hear it?" },
+    { label: 'HOT TAKE', query: "There's something I want to show you, and I need you to give me your hot take on it. And when I say hot, I mean SPICY hot." },
+    { label: 'WWDD?', query: "I've got a problem, and I need to know... what would Dave do??" }
   ];
 
   const addMessage = (text, sender) => {
@@ -36,7 +36,9 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ message: userMessage }),
+        body: JSON.stringify({ 
+          message: userMessage,
+        }),
       });
 
       const data = await response.json();
@@ -85,7 +87,6 @@ export default function Home() {
             className="logo"
             width={240}
             height={120}
-            priority
           />
           <h1>Ask Dave</h1>
           <p className="tagline">FLOCK AROUND AND FIND OUT</p>
