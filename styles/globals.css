@@ -18,6 +18,7 @@ body {
   align-items: center;
   padding: 0 60px;
   min-height: 100vh;
+  background: transparent;
 }
 
 .header {
@@ -52,7 +53,7 @@ h1 {
 }
 
 .tagline {
-  color: #E3C16E;
+  color: #FFFFFF;
   font-size: 1.1em;
   margin: 4px 0 0;
   opacity: 0.85;
@@ -64,10 +65,9 @@ h1 {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 0;
+  padding: 20px;
   margin: 10px 0 0;
   position: relative;
-  background: transparent;
 }
 
 /* Chat log styles */
@@ -86,7 +86,7 @@ h1 {
 .input-area {
   position: sticky;
   bottom: 40px;
-  background-color: rgba(0, 10, 86, 0.4);
+  background-color: rgba(0, 10, 86, 0.3);
   z-index: 10;
   padding: 20px;
   margin: 0 20px;
@@ -201,7 +201,8 @@ h1 {
 .message.user {
   margin-left: auto;
   margin-right: 0;
-  background-color: #ED5145;
+  background-color: rgba(237, 81, 69, 0.8);
+  padding-bottom: 8px;
 }
 
 .message.bot {
@@ -210,6 +211,7 @@ h1 {
   font-family: 'Helvetica', sans-serif;
   line-height: 1.5;
   white-space: pre-wrap;
+  background-color: rgba(36, 36, 36, 0.7);
 }
 
 /* Message content */
@@ -685,4 +687,149 @@ h1 {
 .centered-toggle-row .mode-button {
   min-width: 60px;
   text-align: center;
+}
+
+/* Add this to your global CSS */
+.message b, 
+.message strong, 
+.message-content b, 
+.message-content strong {
+  font-weight: bold !important;
+  color: inherit !important;
+  display: inline !important;
+}
+
+/* Make sure links are styled properly too */
+.message a, 
+.message-content a {
+  color: #4a90e2 !important;
+  text-decoration: underline !important;
+}
+
+/* Add !important to ensure these styles take precedence */
+.message-content b, 
+.message-content strong {
+  font-weight: 700 !important;
+  color: inherit !important;
+  display: inline !important;
+}
+
+/* Add a fallback styling for text with asterisks */
+.message-content {
+  font-weight: normal;
+}
+.message-content:contains('**') {
+  font-weight: normal;
+}
+
+/* Add these styles to your existing CSS */
+
+.message-content {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.copy-button {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  color: #FFFFFF;
+  padding: 5px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.copy-button:hover {
+  opacity: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Fix for user message spacing in the red box */
+.message.user {
+  padding-bottom: 8px;
+}
+
+.message.user .message-content {
+  margin-bottom: 0;
+  line-height: 1.2;
+  padding-bottom: 0;
+}
+
+/* Make sure the text is vertically centered */
+.message.user .message-content span {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+/* Ensure the bot message has proper spacing for the copy button */
+.message.bot .message-content {
+  padding-bottom: 25px;
+  min-height: 30px;
+}
+
+/* Video Background */
+.video-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  overflow: hidden;
+}
+
+.video-background video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Glass container for chat interface */
+.glass-container {
+  background: rgba(0, 10, 86, 0.4) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+/* Update main content background to be transparent */
+.main-content {
+  background: transparent;
+}
+
+/* Update chat container */
+.chat-container {
+  width: 100%;
+  max-width: 800px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  margin: 10px 0 0;
+  position: relative;
+}
+
+/* Update input area to be more transparent */
+.input-area {
+  background-color: rgba(0, 10, 86, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Ensure text is readable on transparent background */
+.message.bot {
+  background-color: rgba(36, 36, 36, 0.7);
+}
+
+.message.user {
+  background-color: rgba(237, 81, 69, 0.8);
 }

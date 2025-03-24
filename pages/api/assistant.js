@@ -25,10 +25,24 @@ function cleanResponse(text) {
   cleaned = cleaned.replace(/<answer>([\s\S]*?)<\/answer>/g, '$1');
   cleaned = cleaned.replace(/<thinking>([\s\S]*?)<\/thinking>/g, '');
   
-  // Preserve line breaks and do minimal text changes
-  // Let the formatMessage function handle the rest
-  
+  // DO NOT escape asterisks or other markdown characters
+  // Just return the cleaned text
   return cleaned;
+}
+
+// Add this function to pre-format the response on the server side
+function preFormatResponse(text) {
+  if (!text) return '';
+  
+  // Replace markdown bold with HTML bold
+  while (text.includes('**')) {
+    text = text.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  }
+  
+  // Replace markdown links
+  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  
+  return text;
 }
 
 export default async function handler(req, res) {
@@ -277,8 +291,9 @@ export default async function handler(req, res) {
       session.messages.push({ role: "assistant", content: response });
       userSessions.set(userSessionId, session);
       
+      console.log("[API] Sending response to client:", cleanResponse(response));
       return res.status(200).json({
-        response: cleanResponse(response),
+        response: preFormatResponse(cleanResponse(response)), // Pre-format here
         sessionId: userSessionId
       });
     } else {

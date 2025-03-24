@@ -1,4 +1,7 @@
 export function formatMessage(text) {
+  console.log("[formatMessage] Input:", text);
+  console.log("[formatMessage] Contains asterisks:", text.includes('**'));
+  
   if (!text) return '';
   
   // First escape any HTML characters to prevent injection
@@ -6,6 +9,11 @@ export function formatMessage(text) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
+  
+  // Use a more reliable approach for bold text
+  while (formatted.includes('**')) {
+    formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+  }
   
   // CONTACT INFORMATION FORMATTING
   // Bold names in contact lists with numbered items
@@ -15,9 +23,6 @@ export function formatMessage(text) {
   formatted = formatted.replace(/([A-Z][a-z]+ [A-Z][a-z]+)(\s*-\s*Email:)/g, '<b>$1</b>$2');
   
   // GENERAL MARKDOWN FORMATTING
-  // Handle bold syntax with **text**
-  formatted = formatted.replace(/\*\*([^\*]+)\*\*/g, '<b>$1</b>');
-  
   // LISTS FORMATTING
   // Process numbered lists (1. text)
   formatted = formatted.replace(/(\d+\.\s+[^\n]+)(\n|$)/g, '<li>$1</li>');
@@ -38,8 +43,7 @@ export function formatMessage(text) {
   
   // LINKS FORMATTING
   // Markdown links [text](url)
-  formatted = formatted.replace(/\[(.*?)\]\((https?:\/\/[^)]+)\)/g, 
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  formatted = formatted.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
   
   // Handle direct URLs not already in a tag
   const urlPattern = /(?<!["'=])(https?:\/\/[^\s<]+)(?![^<]*>)/g;
@@ -49,5 +53,6 @@ export function formatMessage(text) {
   // Convert remaining line breaks to <br> (but not inside list items)
   formatted = formatted.replace(/\n(?!<\/?[uo]l>|<\/?li>)/g, '<br>');
   
+  console.log("[formatMessage] Final output:", formatted);
   return formatted;
 }
