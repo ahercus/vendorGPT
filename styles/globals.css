@@ -120,33 +120,35 @@ h1 {
 }
 
 #send-btn {
-  padding: 10px 25px;
-  background-color: #C1C1C1;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 1.1em;
-  opacity: 0.6;
-  min-width: 100px;
-  text-align: center;
-  transition: all 0.2s ease;
+  background-color: #38b2ac !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 20px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
 }
 
-#user-input:focus ~ #send-btn:not(:disabled) {
-  background-color: #0AEABF;
-  color: #000A56;
-  opacity: 0.6;
+#send-btn:hover {
+  background-color: #319795 !important;
 }
 
-#send-btn:hover:not(:disabled) {
-  opacity: 1;
+#send-btn:active {
+  transform: translateY(1px) !important;
 }
 
-#send-btn:disabled {
-  background-color: #C1C1C1;
-  color: #FFFFFF;
-  opacity: 0.6;
+/* This ensures the send button is not affected by the mode toggle styles */
+.input-controls button#send-btn {
+  background-color: #38b2ac !important;
+  color: white !important;
+}
+
+/* Make sure the active state doesn't affect the send button */
+.input-controls button#send-btn.active {
+  background-color: #38b2ac !important;
+  color: white !important;
 }
 
 #user-input:focus {
