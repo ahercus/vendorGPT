@@ -1,0 +1,65 @@
+/* Message containers */
+.message {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.message.user {
+  background-color: #e6f7ff;
+  text-align: right;
+}
+
+.message.assistant {
+  background-color: #f5f5f5;
+}
+
+/* Labels */
+.assistant-label {
+  color: #d4af37; /* Gold color to match "Your Noble Librarian" */
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+.user-label {
+  font-weight: bold;
+  margin-right: 5px;
+}
+
+/* Content formatting */
+.message-content {
+  margin-top: 5px;
+}
+
+/* Lists */
+.message ol {
+  margin-left: 20px;
+  padding-left: 20px;
+  list-style-type: decimal;
+}
+
+.message ul {
+  margin-left: 20px;
+  padding-left: 20px;
+  list-style-type: disc;
+}
+
+.message li {
+  margin-bottom: 5px;
+  padding-left: 5px;
+}
+
+/* Links */
+.message a {
+  color: #0066cc;
+  text-decoration: underline;
+}
+
+.message a:hover {
+  text-decoration: none;
+}
+
+/* Bold text */
+.message b, .message strong {
+  font-weight: bold;
+}

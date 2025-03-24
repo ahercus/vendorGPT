@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
     // Run the assistant with the file
     const run = await openai.beta.threads.runs.create(thread.id, {
-      assistant_id: process.env.ASSISTANT_ID,
+      assistant_id: 'asst_qAIEY1ik0BUCB4OQPKXatKyB',
       additional_files: [uploadedFile.id]  // Pass the file here
     });
 

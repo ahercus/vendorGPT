@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Ask Dave - Dave's Hot Chicken</title>
+  <title>First Responder 2.0</title>
   <link rel="stylesheet" href="style.css">
   <link rel="icon" type="image/x-icon" href="data:image/x-icon;,">
 </head>
 <body>
   <div class="main-content">
     <div class="header">
-      <img src="dhc-logo.png" alt="Dave's Hot Chicken" class="logo">
+      <img src="firstresponder-logo.png" alt="First Responder" class="logo">
       <h1>Ask Dave</h1>
-      <p class="tagline">FLOCK AROUND AND FIND OUT</p>
+      <p class="tagline">Answer RFIs in a flash</p>
     </div>
     <div class="quick-actions">
       <button class="action-btn" data-query="Tell me about DHC's brand voice">BRAND VOICE</button>
@@ -73,7 +73,7 @@
                 body: JSON.stringify({message})
             });
             
-            let errorMessage = 'A server error has occurred';
+            let errorMessage = 'Fuck. A server error has occurred';
             
             // Try to get response body even for errors
             const data = await response.json().catch(e => {
@@ -108,14 +108,88 @@
     }
 
     function addMessage(text, sender) {
+        console.log("Adding message:", text, "Sender:", sender);
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}`;
         
-        const name = sender === 'bot' ? 'Dave 🔥' : 'You';
-        messageDiv.innerHTML = `<strong class="bot-name">${name}:</strong> ${text.replace(/\n/g, '<br>')}`;
+        const name = sender === 'bot' ? 'Assistant' : 'You';
+        const nameClass = sender === 'bot' ? 'assistant-name' : 'user-name';
+        
+        // Format the message before displaying
+        const formattedText = formatMessage(text);
+        
+        messageDiv.innerHTML = `<strong class="${nameClass}">${name}:</strong> ${formattedText}`;
         
         chatLog.appendChild(messageDiv);
         chatLog.scrollTop = chatLog.scrollHeight;
+    }
+
+    function formatMessage(text) {
+        if (!text) return '';
+        
+        // Log the incoming text for debugging
+        console.log("Formatting text:", text);
+        
+        // First escape any HTML characters to prevent injection
+        let formatted = text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+        
+        // CONVERT BOLD - this is the critical part
+        // Handle various patterns of bold text
+        formatted = formatted.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+        
+        // Process email addresses with markdown
+        formatted = formatted.replace(/\[([^\]]+)\]\((mailto:[^)]+)\)/g, 
+            '<a href="$2">$1</a>');
+        
+        // Process numbered lists
+        let lines = formatted.split('\n');
+        let inList = false;
+        let listHTML = '<ol>';
+        
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
+            const listMatch = line.match(/^(\d+)\.\s+(.*)/);
+            
+            if (listMatch) {
+                if (!inList) {
+                    lines[i] = listHTML;
+                    inList = true;
+                } else {
+                    lines[i] = '';
+                }
+                
+                // Extract the text after the number and period
+                const listItemText = listMatch[2];
+                
+                // Process any bold text within the list item
+                const processedText = listItemText.replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+                
+                listHTML += `<li>${processedText}</li>`;
+            } else if (inList && (line.trim() === '' || i === lines.length - 1)) {
+                lines[i] = '</ol>' + line;
+                inList = false;
+                listHTML = '<ol>';
+            }
+        }
+        
+        if (inList) {
+            lines.push('</ol>');
+        }
+        
+        formatted = lines.join('\n');
+        
+        // Convert plain URLs to clickable links
+        formatted = formatted.replace(/(https?:\/\/[^\s<]+)/g, 
+            '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+        
+        // Convert line breaks to <br> tags (but not in lists)
+        formatted = formatted.replace(/\n(?!<\/?[uo]l>|<\/?li>)/g, '<br>');
+        
+        console.log("Formatted output:", formatted);
+        return formatted;
     }
 
     // Event listeners
@@ -128,7 +202,7 @@
 
     // Add initial welcome message
     window.addEventListener('load', () => {
-        addMessage("Yo! What's good? Whether you're talking brand, culture, or our Nashville hot heat levels - I'm here to keep it 💯", 'bot');
+        addMessage("Hello Noble Person", 'bot');
     });
   </script>
 </body>

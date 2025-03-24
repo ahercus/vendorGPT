@@ -1,55 +1,34 @@
-import OpenAI from 'openai';
+import { OpenAI } from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Use a database in production instead of this in-memory store
+const userSessions = new Map();
 
-let THREAD_ID = null;
+// Add this to your session management
+const MAX_CONVERSATION_LENGTH = 10;
 
 function cleanResponse(text) {
-  // Remove citations like 【8:0†Marketing summary.json】
-  let cleaned = text.replace(/【[^】]+】/g, '');
+  if (!text) return '';
   
-  // Convert markdown bold to HTML
-  cleaned = cleaned.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  
-  // Split into paragraphs, preserving numbered lists
-  const paragraphs = [];
-  let currentParagraph = [];
-  
-  cleaned.split('\n').forEach(line => {
-    line = line.trim();
-    if (!line) {  // Empty line indicates paragraph break
-      if (currentParagraph.length) {
-        paragraphs.push(currentParagraph.join(' '));
-        currentParagraph = [];
-      }
-    } else {
-      // Check if line starts with a number or bullet
-      if (/^\d+\.|^- /.test(line)) {
-        // If we have a previous paragraph, save it
-        if (currentParagraph.length) {
-          paragraphs.push(currentParagraph.join(' '));
-          currentParagraph = [];
-        }
-        // Convert dash to bullet
-        if (line.startsWith('- ')) {
-          line = '• ' + line.substring(2);
-        }
-        paragraphs.push(line);
-      } else {
-        currentParagraph.push(line);
-      }
+  // Handle if text is not a string (rare but possible)
+  if (typeof text !== 'string') {
+    try {
+      text = JSON.stringify(text);
+    } catch (e) {
+      return 'Error processing response';
     }
-  });
-  
-  // Add any remaining paragraph
-  if (currentParagraph.length) {
-    paragraphs.push(currentParagraph.join(' '));
   }
   
-  // Rejoin with proper spacing
-  return paragraphs.filter(p => p.trim()).join('\n\n');
+  // Remove any citations or special markers
+  let cleaned = text.replace(/【[^】]+】/g, '');
+  
+  // Remove any XML tags sometimes used by the model
+  cleaned = cleaned.replace(/<answer>([\s\S]*?)<\/answer>/g, '$1');
+  cleaned = cleaned.replace(/<thinking>([\s\S]*?)<\/thinking>/g, '');
+  
+  // Preserve line breaks and do minimal text changes
+  // Let the formatMessage function handle the rest
+  
+  return cleaned;
 }
 
 export default async function handler(req, res) {
@@ -64,52 +43,280 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
+  // Store the sessionId at the top level so it's available in the catch block
+  let userSessionId;
+
   try {
-    const { message, threadId } = req.body;
+    console.log('Starting request processing...');
+    const { message, sessionId } = req.body;
     
     if (!message) {
       throw new Error('Message is required');
     }
 
-    // Use provided thread ID or create new one
-    const currentThreadId = threadId || (await openai.beta.threads.create()).id;
-
-    // Add the message to the thread
-    await openai.beta.threads.messages.create(currentThreadId, {
-      role: 'user',
-      content: message,
+    // Initialize OpenAI with the v2 assistants beta header
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+      defaultHeaders: {
+        'OpenAI-Beta': 'assistants=v2'  // This is the critical change
+      }
     });
 
-    // Run the assistant
-    const run = await openai.beta.threads.runs.create(currentThreadId, {
-      assistant_id: process.env.ASSISTANT_ID,
-    });
+    // Get or create session
+    userSessionId = sessionId || Math.random().toString(36).substring(2, 15);
+    let session = userSessions.get(userSessionId) || { previousResponseId: null };
+    
+    // Track messages for future summarization
+    if (!session.messages) session.messages = [];
+    session.messages.push({ role: "user", content: message });
 
-    // Wait for the run to complete
-    let runStatus;
-    while (true) {
-      runStatus = await openai.beta.threads.runs.retrieve(currentThreadId, run.id);
+    // Before creating a new response, check if we need to summarize
+    if (session.messages.length > MAX_CONVERSATION_LENGTH) {
+      console.log("Conversation summarized to manage context window");
       
-      if (runStatus.status === 'completed') {
-        const messages = await openai.beta.threads.messages.list(currentThreadId);
-        const response = messages.data[0].content[0].text.value;
-        return res.status(200).json({ response: cleanResponse(response) });
+      // Use the Assistants API instead of Responses API for summarization
+      try {
+        // Create a temporary thread for summarization
+        const thread = await openai.beta.threads.create();
+        
+        // Add the messages to the thread
+        for (const msg of session.messages) {
+          await openai.beta.threads.messages.create(thread.id, {
+            role: msg.role === "user" ? "user" : "assistant",
+            content: msg.content
+          });
+        }
+        
+        // Create a run to summarize the conversation
+        const run = await openai.beta.threads.runs.create(thread.id, {
+          assistant_id: process.env.ASSISTANT_ID || "asst_abc123", // Replace with your actual Assistant ID
+          instructions: "Create a concise summary that preserves the key context from this conversation about vendor information requests."
+        });
+        
+        // Wait for the run to complete
+        let summarizationRun;
+        do {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          summarizationRun = await openai.beta.threads.runs.retrieve(thread.id, run.id);
+        } while (summarizationRun.status === "queued" || summarizationRun.status === "in_progress");
+        
+        if (summarizationRun.status === "completed") {
+          // Get the summary message
+          const messages = await openai.beta.threads.messages.list(thread.id);
+          const summary = messages.data[0].content[0].text.value;
+          
+          // Start a new conversation with the summary as context
+          session = {
+            previousResponseId: null,
+            messages: [{
+              role: "system",
+              content: `Previous conversation summary: ${summary}`
+            }]
+          };
+        } else {
+          throw new Error("Summarization failed");
+        }
+      } catch (error) {
+        console.error("Error summarizing conversation:", error);
+        // Fall back to keeping the most recent messages if summarization fails
+        session.messages = session.messages.slice(-5);
       }
-
-      if (runStatus.status === 'failed') {
-        throw new Error(`Run failed: ${runStatus.last_error}`);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
+    // For the main conversation, also use the Assistants API instead of Responses API
+    // Create a thread if one doesn't exist
+    if (!session.threadId) {
+      const thread = await openai.beta.threads.create();
+      session.threadId = thread.id;
+    }
+
+    // Add the user message to the thread
+    await openai.beta.threads.messages.create(session.threadId, {
+      role: "user",
+      content: message
+    });
+
+    // Create a run WITHOUT any overrides - let the dashboard settings work
+    const run = await openai.beta.threads.runs.create(session.threadId, {
+      assistant_id: process.env.ASSISTANT_ID
+    });
+
+    // Inside the handler function, before creating the run
+    console.log('Session ID:', userSessionId);
+    console.log('Assistant ID:', process.env.ASSISTANT_ID);
+    console.log('Incoming message:', message);
+
+    // Process the run
+    let runStatus;
+    do {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      runStatus = await openai.beta.threads.runs.retrieve(session.threadId, run.id);
+      console.log('Run status:', runStatus.status);
+      
+      // Handle tool calls
+      if (runStatus.status === "requires_action") {
+        console.log('Run requires action:');
+        console.log(JSON.stringify(runStatus.required_action, null, 2));
+        
+        const toolCalls = runStatus.required_action.submit_tool_outputs.tool_calls;
+        console.log(`Number of tool calls requested: ${toolCalls.length}`);
+        
+        const toolOutputs = await Promise.all(toolCalls.map(async (toolCall) => {
+          console.log(`Processing tool call: ${toolCall.function.name}`);
+          console.log(`Arguments: ${toolCall.function.arguments}`);
+          
+          // Process each tool type
+          if (toolCall.function.name === "search_sheet_file") {
+            const args = JSON.parse(toolCall.function.arguments);
+            console.log('Function args:', args);
+            const searchTerm = args.search_term || args.file_name; // Support both parameter names
+            console.log('Searching for:', searchTerm);
+            
+            try {
+              const searchUrl = `https://google-sheets-api-delta.vercel.app/api/search?q=${encodeURIComponent(searchTerm)}`;
+              const searchResponse = await fetch(searchUrl);
+              console.log('Search API response status:', searchResponse.status);
+              const data = await searchResponse.json();
+              console.log('Search API response data:', data);
+              
+              return {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify(data)
+              };
+            } catch (error) {
+              console.error('Error calling search API:', error);
+              return {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify({ error: 'Failed to search for file' })
+              };
+            }
+          } else if (toolCall.function.name === "search_contact") {
+            const args = JSON.parse(toolCall.function.arguments);
+            const companyName = args.company_name;
+            console.log('Searching for contact:', companyName);
+            
+            try {
+              const contactUrl = `https://google-sheets-api-delta.vercel.app/api/contact?q=${encodeURIComponent(companyName)}`;
+              const contactResponse = await fetch(contactUrl);
+              console.log('Contact API response status:', contactResponse.status);
+              const data = await contactResponse.json();
+              console.log('Contact API response data:', data);
+              
+              return {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify(data)
+              };
+            } catch (error) {
+              console.error('Error calling contact API:', error);
+              return {
+                tool_call_id: toolCall.id,
+                output: JSON.stringify({ error: 'Failed to search for contact' })
+              };
+            }
+          } else {
+            console.log(`Unknown tool call: ${toolCall.function.name}`);
+            return null;
+          }
+        }));
+        
+        console.log('Tool outputs:', JSON.stringify(toolOutputs, null, 2));
+        
+        // Submit tool outputs
+        try {
+          const submitResponse = await openai.beta.threads.runs.submitToolOutputs(
+            session.threadId,
+            run.id,
+            {
+              tool_outputs: toolOutputs.filter(output => output !== null)
+            }
+          );
+          console.log('Tool outputs submitted successfully');
+        } catch (error) {
+          console.error('Error submitting tool outputs:', error);
+          throw error;
+        }
+      }
+    } while (runStatus.status === "queued" || runStatus.status === "in_progress" || runStatus.status === "requires_action");
+
+    // Get the response
+    if (runStatus.status === "completed") {
+      const messages = await openai.beta.threads.messages.list(session.threadId);
+      
+      // Handle potential different response formats
+      let response = '';
+      
+      if (messages.data && messages.data.length > 0) {
+        const firstMessage = messages.data[0];
+        
+        if (firstMessage.content && firstMessage.content.length > 0) {
+          // Handle different content types (text, image, etc)
+          const contentParts = [];
+          
+          for (const contentPart of firstMessage.content) {
+            if (contentPart.type === 'text') {
+              contentParts.push(contentPart.text.value);
+            } else if (contentPart.type === 'image_file') {
+              // If this is an image response, we can handle it by adding an image tag
+              // You would need to expose an endpoint to retrieve the image from OpenAI
+              contentParts.push(`[Image: ${contentPart.image_file.file_id}]`);
+            }
+          }
+          
+          response = contentParts.join('\n\n');
+        } else {
+          console.warn('Empty content array in message');
+          response = 'No content found in response';
+        }
+      } else {
+        console.warn('No messages returned from OpenAI');
+        response = 'No response received';
+      }
+      
+      // Save the session
+      if (!session.messages) session.messages = [];
+      session.messages.push({ role: "assistant", content: response });
+      userSessions.set(userSessionId, session);
+      
+      return res.status(200).json({
+        response: cleanResponse(response),
+        sessionId: userSessionId
+      });
+    } else {
+      const errorMessage = runStatus.last_error?.message || 'Unknown error';
+      console.error(`Run failed: ${errorMessage}`);
+      throw new Error(`Run failed: ${errorMessage}`);
+    }
   } catch (error) {
-    console.error('Error:', error);
-    return res.status(500).json({
+    console.error('Error details:', error);
+    
+    // Categorize errors for better user feedback
+    let userMessage = "Sorry, I encountered an issue. Please try again.";
+    let statusCode = 500;
+    
+    if (error.name === 'OpenAIError') {
+      if (error.status === 429) {
+        userMessage = "I'm processing too many requests right now. Please try again in a moment.";
+        statusCode = 429;
+      } else if (error.status === 400) {
+        userMessage = "I couldn't understand that request. Could you try rephrasing?";
+        statusCode = 400;
+      }
+    } else if (error.message.includes('search_sheet_file')) {
+      userMessage = "I had trouble searching for that file. Could you try a different filename or vendor?";
+      statusCode = 200; // Still return 200 for application errors
+    } else if (error.message.includes('timeout')) {
+      userMessage = "Your request took too long to process. Try a more specific question.";
+      statusCode = 408;
+    }
+    
+    return res.status(statusCode).json({
+      response: userMessage,
       error: {
         message: error.message,
-        type: error.constructor.name
-      }
+        type: error.constructor.name,
+        status: error.status || 500
+      },
+      sessionId: userSessionId // Now this is defined
     });
   }
 } 
