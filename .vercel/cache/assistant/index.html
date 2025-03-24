@@ -63,6 +63,8 @@
             dots = (dots + 1) % 3;
         }, 500);
         
+        console.log("Sending message:", message);
+        
         try {
             const response = await fetch('/api/assistant', {
                 method: 'POST',
@@ -93,6 +95,8 @@
                 throw new Error(errorMessage);
             }
             
+            console.log("Received response:", data.response);
+            
             addMessage(data.response, 'bot');
         } catch (error) {
             console.error('Error details:', error);
@@ -115,9 +119,11 @@
         const name = sender === 'bot' ? 'Assistant' : 'You';
         const nameClass = sender === 'bot' ? 'assistant-name' : 'user-name';
         
-        // Format the message before displaying
+        // Format the message BEFORE adding it to the DOM
         const formattedText = formatMessage(text);
+        console.log("Formatted result:", formattedText);
         
+        // Use the formatted text in the innerHTML
         messageDiv.innerHTML = `<strong class="${nameClass}">${name}:</strong> ${formattedText}`;
         
         chatLog.appendChild(messageDiv);
