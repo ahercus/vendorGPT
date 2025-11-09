@@ -54,7 +54,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(405).json({ error: { message: 'Method not allowed' } });
   }
 
   // Store the sessionId at the top level so it's available in the catch block
@@ -68,12 +68,22 @@ export default async function handler(req, res) {
       throw new Error('Message is required');
     }
 
-    // Initialize OpenAI with the v2 assistants beta header
+    // Check if OpenAI API key is available
+    const openaiApiKey = process.env.OPENAI_API_KEY;
+    const assistantId = process.env.ASSISTANT_ID;
+    
+    // Require proper API configuration - NO MOCK RESPONSES
+    if (!openaiApiKey || openaiApiKey === 'your_openai_api_key_here') {
+      throw new Error('OpenAI API key is not configured. Please set OPENAI_API_KEY in your environment variables.');
+    }
+    
+    if (!assistantId || assistantId === 'your_assistant_id_here') {
+      throw new Error('OpenAI Assistant ID is not configured. Please set ASSISTANT_ID in your environment variables.');
+    }
+
+    // Initialize OpenAI client
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
-      defaultHeaders: {
-        'OpenAI-Beta': 'assistants=v2'  // This is the critical change
-      }
+      apiKey: openaiApiKey,
     });
 
     // Get or create session

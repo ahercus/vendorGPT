@@ -1,41 +1,197 @@
+/* Noir surveillance theme */
+@import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&display=swap');
+
+/* Greyscale filter for background video */
+.noir-filter {
+  filter: grayscale(0.5) brightness(0.4) contrast(1.1);
+}
+
+/* Venetian blind effect */
+.video-background::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.5) 0px,
+    rgba(0, 0, 0, 0.5) 4px,
+    rgba(0, 0, 0, 0.1) 4px,
+    rgba(0, 0, 0, 0.1) 8px
+  );
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Film grain texture */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 15, 0, 0.2);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Digital scan effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;
+  background: linear-gradient(transparent 50%, rgba(0, 255, 0, 0.025) 50%);
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scanlines 0.5s linear infinite;
+  opacity: 0.2;
+  z-index: 5;
+}
+
+@keyframes scanlines {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 4px;
+  }
+}
+
+/* Add digital glitch effect */
+@keyframes glitch {
+  0% {
+    clip-path: inset(40% 0 61% 0);
+    transform: translate(-10px, 5px);
+  }
+  20% {
+    clip-path: inset(92% 0 1% 0);
+    transform: translate(10px, -5px);
+  }
+  40% {
+    clip-path: inset(43% 0 1% 0);
+    transform: translate(-5px, 10px);
+  }
+  60% {
+    clip-path: inset(25% 0 58% 0);
+    transform: translate(5px, 5px);
+  }
+  80% {
+    clip-path: inset(54% 0 7% 0);
+    transform: translate(2px, -5px);
+  }
+  100% {
+    clip-path: inset(58% 0 43% 0);
+    transform: translate(-10px, 5px);
+  }
+}
+
+/* Make the typewriter text occasionally glitch */
+.typewriter-text::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  color: rgba(0, 255, 0, 0.8);
+  background: rgba(10, 10, 10, 0.2);
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+  animation: glitch 5s infinite linear alternate-reverse;
+  white-space: nowrap;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 0, 0.5);
+}
+
+/* Vignette effect for noir aesthetic */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  z-index: 4;
+}
+
 @import url('https://fonts.googleapis.com/css2?family=Helvetica:wght@400;700&display=swap');
 
 body {
-  font-family: 'Helvetica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  position: relative;
+  background: #000000;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 1) 0px,
+    rgba(0, 0, 0, 1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  background-size: 100% 2px;
+  font-family: 'Courier Prime', monospace;
   font-weight: 400;
-  background: linear-gradient(135deg, #000A56 0%, #000428 100%) fixed;
-  background-attachment: fixed;
   color: #C1C1C1;
   margin: 0;
   padding: 0;
   min-height: 100vh;
-}
-
-.main-content {
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 0 60px;
-  min-height: 100vh;
-  background: transparent;
-}
-
-.header {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Main container */
+.main-content {
   width: 100%;
-  max-width: 800px;
-  padding: 24px 0;
-  gap: 24px;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
+/* Logo */
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 60px;
+  margin-top: 20px;
 }
 
 .logo {
-  width: 86px;
-  height: 86px;
+  width: 225px;
+  height: 225px;
   object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(15, 206, 9, 0.4));
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  filter: drop-shadow(0 0 15px rgba(15, 206, 9, 0.6));
 }
 
 .header-text {
@@ -49,57 +205,99 @@ h1 {
   margin: 0;
   color: #FFFFFF;
   line-height: 1;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  letter-spacing: 5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-family: 'Courier Prime', monospace;
 }
 
 .tagline {
-  color: #FFFFFF;
+  color: #777777;
   font-size: 1.1em;
   margin: 4px 0 0;
   opacity: 0.85;
+  font-style: italic;
+  letter-spacing: 1px;
+  font-family: 'Courier Prime', monospace;
 }
 
+/* Main terminal container */
 .chat-container {
+  position: relative;
   width: 100%;
   max-width: 800px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  margin: 10px 0 0;
-  position: relative;
+  margin: 0 auto;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px !important;
+  padding: 1rem;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+  transition: all 0.3s ease;
+  min-height: auto;
+  height: auto;
+  max-height: 80vh;
+  overflow-y: auto;
+  z-index: 1;
+}
+
+/* Make it taller when chat is active */
+.chat-container:has(.message) {
+  min-height: 400px;
+  transition: min-height 0.5s ease;
+}
+
+/* Add tactical interface elements */
+.chat-container::before {
+  display: none;
 }
 
 /* Chat log styles */
 #chat-log {
   flex: 1;
   overflow-y: auto;
-  padding: 20px 0 120px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  background: transparent;
-  scroll-behavior: smooth;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* Input area styles */
+.chat-log-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: auto;
+  padding: 0;
+}
+
+/* Input area for chat mode */
 .input-area {
   position: sticky;
-  bottom: 40px;
-  background-color: rgba(0, 10, 86, 0.3);
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.9);
   z-index: 10;
   padding: 20px;
-  margin: 0 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(0, 255, 0, 0.3);
   display: flex;
   flex-direction: column;
   gap: 12px;
-  border-radius: 16px;
-  backdrop-filter: blur(10px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .input-area::before {
-  display: none;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.8) 0%, rgba(10, 10, 10, 0.9) 100%);
+  border-radius: inherit;
+  z-index: -1;
 }
 
 .input-controls {
@@ -111,49 +309,49 @@ h1 {
 
 #user-input {
   flex: 1;
-  padding: 15px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 12px;
-  background-color: rgba(0, 0, 0, 0.3);
-  color: #FFFFFF;
-  font-size: 1.1em;
+  padding: 10px 15px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 4px !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgb(0, 255, 0);
+  font-family: 'Courier Prime', monospace;
+  outline: none;
+}
+
+#user-input::placeholder {
+  color: rgba(0, 255, 0, 0.4);
 }
 
 #send-btn {
-  background-color: #38b2ac !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 8px !important;
-  padding: 10px 20px !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: background-color 0.2s ease !important;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: rgb(0, 255, 0);
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 4px !important;
+  padding: 10px 15px;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75em;
 }
 
 #send-btn:hover {
-  background-color: #319795 !important;
+  background-color: rgba(5, 20, 5, 0.9);
 }
 
 #send-btn:active {
-  transform: translateY(1px) !important;
+  transform: translateY(1px);
 }
 
 /* This ensures the send button is not affected by the mode toggle styles */
 .input-controls button#send-btn {
-  background-color: #38b2ac !important;
-  color: white !important;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #00FF00;
 }
 
 /* Make sure the active state doesn't affect the send button */
 .input-controls button#send-btn.active {
-  background-color: #38b2ac !important;
-  color: white !important;
-}
-
-#user-input:focus {
-  border-color: #FFFFFF;
-  outline: none;
+  background-color: rgba(0, 40, 0, 0.7);
+  color: #00FF00;
 }
 
 .quick-actions {
@@ -190,121 +388,215 @@ h1 {
   opacity: 1;
 }
 
-/* Base message styles */
+/* Message styling to exactly match screenshot */
 .message {
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 12px;
-  max-width: 85%;
-  background-color: #242424;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  margin-bottom: 15px !important;
+  width: 100%;
+  border-radius: 4px !important;
+  overflow: hidden;
 }
 
 .message.user {
-  margin-left: auto;
-  margin-right: 0;
-  background-color: rgba(237, 81, 69, 0.8);
-  padding-bottom: 8px;
+  background-color: rgba(0, 20, 0, 0.9) !important;
+  border: 1px solid rgba(0, 255, 0, 0.3) !important;
+  padding: 0 !important;
+  position: relative !important;
+  border-radius: 4px !important;
 }
 
 .message.bot {
-  margin-right: auto;
-  margin-left: 0;
-  font-family: 'Helvetica', sans-serif;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  background-color: rgba(36, 36, 36, 0.7);
+  background-color: #d4dcd9 !important;
+  border: 1px solid rgba(221, 221, 221, 0.3) !important;
+  padding: 0 !important;
+  position: relative !important;
+  border-radius: 4px !important;
 }
 
-/* Message content */
-.message-content {
+.user-name {
+  position: absolute !important;
+  top: 8px !important;
+  right: 15px !important;
+  color: rgba(0, 255, 0, 0.9) !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.75em !important;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  z-index: 10 !important;
+}
+
+.assistant-name {
+  position: absolute !important;
+  top: 8px !important;
+  left: 15px !important;
+  color: #052a03 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.75em !important;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  z-index: 10 !important;
+}
+
+.message.user .message-content {
+  color: #0fce09 !important;
+  background: none !important;
+  border: none !important;
+  font-family: 'Courier Prime', monospace !important;
+  padding: 30px 15px 15px 15px !important;
+  box-shadow: none !important;
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+  text-align: right !important;
+}
+
+.message.bot .message-content {
+  color: #083f06 !important;
+  background: none !important;
+  border: none !important;
+  font-family: 'Courier Prime', monospace !important;
+  padding: 30px 15px 15px 15px !important;
+  box-shadow: none !important;
+  font-size: 1em !important;
+  line-height: 1.5 !important;
+  margin: 0 !important;
+}
+
+.message.user .message-content span {
+  color: #0fce09 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 1em !important;
+  display: inline-block !important;
+  text-align: right !important;
+}
+
+.message.bot .message-content span {
+  color: #083f06 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 1em !important;
+  display: inline-block !important;
+  width: 100% !important;
+}
+
+/* Style the copy button */
+.copy-button {
+  position: absolute !important;
+  top: 8px !important;
+  right: 10px !important;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0.7 !important;
+  width: 16px !important;
+  height: 16px !important;
+  padding: 0 !important;
+  z-index: 2 !important;
+}
+
+/* Mode buttons styling */
+.mode-button {
+  background-color: rgba(0, 0, 0, 0.9);
   position: relative;
-  padding-right: 40px;
-  padding-bottom: 32px;
-  min-height: 24px;
+  color: #00FF00;
+  background-color: rgba(0, 20, 0, 0.7);
+  padding: 15px;
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 6px;
+  font-family: 'Courier Prime', monospace;
+  line-height: 1.6;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5), 0 0 5px rgba(0, 255, 0, 0.2);
+  overflow: auto;
 }
 
-/* Typography */
-.message.bot h2 {
-  font-size: 1.2em;
-  color: #E3C16E;
-  font-weight: 600;
-  margin: 0.8em 0 0.4em;
-  line-height: 1.3;
-}
-
-.message.bot p {
-  margin: 0.6em 0;
-  color: #FFFFFF;
-  font-size: 1em;
-  line-height: 1.5;
-}
-
-/* Lists */
-.message.bot ul {
-  margin: 0;
-  padding-left: 1.2em;
-  list-style-type: none;
-}
-
-.message.bot li {
+.message.bot .message-content span,
+.message.user .message-content span {
+  font-family: 'Courier Prime', monospace;
   position: relative;
-  padding-left: 0.8em;
-  margin: 0;
-  color: #FFFFFF;
-  line-height: 1.4;
+  display: block;
+  animation: scanEffect 4s linear infinite;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(0, 255, 0, 0.2) 50%,
+    transparent 100%
+  );
+  background-size: 100% 20px;
+  background-repeat: repeat-y;
+  background-position: 0 0;
 }
 
-.message.bot li:before {
-  content: "-";
-  position: absolute;
-  left: -0.8em;
-  color: #E3C16E;
-  line-height: 1.4;
+@keyframes scanEffect {
+  0% {
+    background-position: 0 -20px;
+  }
+  100% {
+    background-position: 0 100%;
+  }
 }
 
-/* Strong text */
-.message.bot strong {
-  color: #E3C16E;
-  font-weight: 600;
-  margin-right: 0.4em;
+/* Error message special styling */
+.message.bot .message-content span:empty:after {
+  content: "Sorry, I encountered an error. Please try again.";
+  color: #FF3333;
+  animation: errorBlink 1.5s infinite;
+  font-family: 'Courier Prime', monospace;
+  text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
 }
 
-/* Remove extra spacing */
-.message.bot > *:first-child {
-  margin-top: 0;
+@keyframes errorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
-.message.bot > *:last-child {
-  margin-bottom: 0;
+/* Mode buttons styling */
+.mode-button {
+  background-color: rgba(0, 0, 0, 0.9);
+  color: rgba(15, 206, 9, 0.8);
+  border: 1px solid rgba(15, 206, 9, 0.4);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.mode-button:hover {
+  background-color: rgba(5, 20, 5, 0.9);
+  color: #0fce09;
+}
+
+.mode-button.active {
+  background-color: rgba(15, 40, 15, 0.9);
+  color: #0fce09;
+  border-color: #0fce09;
 }
 
 /* Copy button */
 .copy-button {
   position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 32px;
-  height: 32px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  opacity: 0;
-  transition: opacity 0.2s;
+  top: 10px;
+  right: 10px;
+  background-color: rgba(0, 40, 0, 0.7);
+  color: rgba(0, 255, 0, 0.8);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255, 255, 255, 0.7);
-  padding: 0;
-}
-
-.message:hover .copy-button {
-  opacity: 0.6;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.7;
 }
 
 .copy-button:hover {
+  background-color: rgba(0, 60, 0, 0.8);
+  color: #00FF00;
   opacity: 1;
-  color: #ffffff;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
 }
 
 /* Mobile adjustments */
@@ -427,15 +719,16 @@ h1 {
   display: inline-flex;
   gap: 4px;
   align-items: center;
+  justify-content: center;
 }
 
 .loading-dots span {
-  width: 8px;
-  height: 8px;
-  background-color: #ffffff;
+  width: 6px;
+  height: 6px;
+  background-color: #00FF00;
   border-radius: 50%;
   display: inline-block;
-  animation: thinking 1.4s infinite;
+  animation: thinking 1.2s infinite ease-in-out;
 }
 
 .loading-dots span:nth-child(2) {
@@ -447,231 +740,467 @@ h1 {
 }
 
 .response-toggles {
+  margin-top: 0.5rem;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  margin: 0 10px;
+  gap: 2px;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .response-mode {
   display: flex;
+  width: 100%;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+/* HUD-style overlay elements */
+.header::after {
+  display: none;
+}
+
+/* Spy-themed elements */
+.spy-search-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  gap: 4px;
-  padding: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  height: 24px;
-}
-
-.mode-button {
-  padding: 2px 10px;
-  border-radius: 6px;
-  font-size: 0.75em;
-  letter-spacing: 0.3px;
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  line-height: 1;
-}
-
-.mode-button.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-}
-
-/* Remove the chat container gradient mask */
-.chat-container::after {
-  display: none;
-}
-
-/* Adjust spacing for last message */
-.message:last-child {
-  margin-bottom: 0;
-}
-
-/* Bot message specific styles */
-.message.bot {
-  font-family: 'Helvetica', sans-serif;
-  line-height: 1.6;
-  margin-right: auto;
-  margin-left: 0;
-  background-color: #242424;
-  white-space: pre-wrap;
-}
-
-/* Headers with proper weight */
-.message.bot h1 {
-  font-size: 1.8em;
-  margin: 1em 0 0.5em;
-  color: #ffffff;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.message.bot h2 {
-  font-size: 1.4em;
-  margin: 0.8em 0 0.4em;
-  color: #E3C16E;
-  font-weight: 600;
-  line-height: 1.2;
-}
-
-/* Normal text */
-.message.bot p {
-  margin: 0.8em 0;
-  font-size: 1.1em;
-  font-weight: 400;
-  color: #FFFFFF;
-}
-
-/* Strong text */
-.message.bot strong {
-  font-weight: 600;
-  color: #FFFFFF;
-}
-
-/* List items */
-.message.bot li {
-  color: #FFFFFF;
-  font-weight: 400;
-}
-
-.message.bot li strong {
-  font-weight: 600;
-  color: #FFFFFF;
-}
-
-/* Remove the intro message */
-.message.bot:first-child {
-  display: none;
-}
-
-/* Spacing */
-.message.bot > *:first-child {
-  margin-top: 0;
-}
-
-.message.bot > *:last-child {
-  margin-bottom: 0;
-}
-
-/* Message container */
-.message.bot .message-content {
-  position: relative;
-  padding-right: 20px;
-  padding-bottom: 4px;
-  min-height: 35px;
-}
-
-/* Remove default list styles */
-.message.bot ul,
-.message.bot ol {
-  margin: 0.8em 0;
   padding: 0;
+  margin: 0;
 }
 
-/* Message formatting styles */
-.main-header {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: white;
-  margin: 1rem 0;
+/* Add a pulse animation to the search prompt */
+.search-prompt {
+  color: rgba(0, 255, 0, 0.8);
+  margin-bottom: 15px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  animation: pulse 2s infinite;
 }
 
-.section-header {
-  font-size: 1.4em;
-  font-weight: bold;
-  color: #E3C16E;
-  margin: 1.2rem 0 0.2rem;
-  line-height: 1.2;
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
 }
 
-.tertiary-header {
-  font-size: 1.1em;
-  font-weight: bold;
-  color: white;
-  margin: 1rem 0 0.3rem;
-  line-height: 1.2;
-}
-
-.bullet-with-header {
-  margin: 0.8em 0;
-  padding-left: 1.5em;
+.typewriter-text {
+  display: inline-block;
   position: relative;
-  line-height: 1.4;
-  color: white;
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.3em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  text-transform: uppercase;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3.5s steps(30, end) forwards, blink-caret 0.75s step-end infinite;
 }
 
-.bullet-with-header:before {
-  content: "—";
+.typewriter-text::before {
+  content: attr(data-text);
   position: absolute;
   left: 0;
-  color: white;
+  top: 0;
+  width: 100%;
+  color: rgba(0, 255, 0, 0.8);
+  background: rgba(10, 10, 10, 0.2);
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+  animation: glitch 5s infinite linear alternate-reverse;
+  white-space: nowrap;
 }
 
-.bullet-header {
-  color: #E3C16E;
-  font-weight: 600;
-  margin-right: 0.2em;
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
 }
 
-.custom-list {
-  list-style: none;
-  padding-left: 1.5em;
-  margin: 0;
+@keyframes blink-caret {
+  from, to { border-right: 2px solid transparent }
+  50% { border-right: 2px solid #00FF00; }
 }
 
-.custom-list li {
-  position: relative;
-  padding-left: 1.5em;
-  text-indent: -1.5em;
-  margin: 0;
-  color: white;
-  line-height: 1.4;
-}
-
-.custom-list li strong {
-  color: #E3C16E;
-  font-weight: 600;
-}
-
-/* Remove any existing bullet styles */
-.message.bot li:before {
+.terminal-decoration {
   display: none;
 }
 
-/* Adjust spacing between sections */
-.message.bot > h2 {
-  margin-top: 1.2rem;
-  margin-bottom: 0.3rem;
+/* Console-style input styling */
+.main-console {
+  width: 100%;
+  max-width: 650px;
+  margin-bottom: 0;
 }
 
-.message.bot > h3 {
-  margin-top: 1rem;
-  margin-bottom: 0.2rem;
+.main-console::before {
+  display: none;
 }
 
-/* Remove extra spacing between lists */
-.message.bot ul + ul {
-  margin-top: -0.1rem;
+.main-console .input-controls {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 0.5rem;
 }
 
-.message-content {
-  color: white;
+.main-console .response-toggles {
+  margin-top: 0.5rem;
 }
 
-.message-content p {
-  margin: 0.5em 0;
+.main-console #user-input {
+  flex: 1;
+  padding: 10px 15px;
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgb(0, 255, 0);
+  font-family: 'Courier Prime', monospace;
+  outline: none;
 }
 
-.main-title {
-  font-size: 1.8em;
-  font-weight: bold;
-  color: white;
-  margin: 0 0 0.5rem;
-  line-height: 1.2;
+.main-console #user-input::placeholder {
+  color: rgba(0, 255, 0, 0.6);
+  text-align: center;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console #user-input:focus {
+  border-color: rgba(0, 255, 0, 0.9);
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  text-align: left;
+}
+
+.main-console #send-btn {
+  background-color: rgba(0, 0, 0, 0.8);
+  color: rgb(0, 255, 0);
+  border: 1px solid rgba(0, 255, 0, 0.5);
+  border-radius: 0;
+  padding: 10px 15px;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.75em;
+}
+
+.main-console .response-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.main-console .response-mode, 
+.main-console .centered-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  height: auto;
+}
+
+.main-console .mode-button {
+  flex: 1;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 255, 0, 0.6);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px !important;
+  padding: 6px 15px;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console .mode-button:hover {
+  background-color: rgba(0, 20, 0, 0.7);
+  color: #00FF00;
+}
+
+.main-console .mode-button.active {
+  background-color: rgba(0, 40, 0, 0.7);
+  color: #00FF00;
+  border-color: rgba(0, 255, 0, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Terminal decoration elements */
+.terminal-decoration {
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: rgba(0, 30, 0, 0.7);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-led {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 255, 0, 0.7);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(0, 255, 0, 0.8);
+  animation: led-blink 3s infinite;
+}
+
+.terminal-title {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.75em;
+  color: rgba(0, 255, 0, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@keyframes led-blink {
+  0%, 80%, 100% { opacity: 1; }
+  40% { opacity: 0.4; }
+}
+
+/* Make sure error messages look consistent with the rest of the UI */
+.message.bot .message-content,
+.message.user .message-content {
+  color: #00FF00;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  width: 100%;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.1em;
+  line-height: 1.4;
+  position: relative;
+}
+
+/* Make error messages consistent */
+.message.bot .message-content span,
+.message.user .message-content span {
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1em;
+}
+
+/* Add a subtle scan effect to error messages */
+.message.bot .message-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 255, 0, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scantext 1s linear infinite;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+@keyframes scantext {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+/* Apply consistent styling to buttons to match the mockup */
+.response-mode {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.main-console .response-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.main-console .mode-button {
+  flex: 1;
+  text-align: center;
+  min-width: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 255, 0, 0.6);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px !important;
+  padding: 6px 15px;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console .mode-button:hover {
+  background-color: rgba(0, 20, 0, 0.7);
+  color: #00FF00;
+}
+
+.main-console .mode-button.active {
+  background-color: rgba(0, 40, 0, 0.7);
+  color: #00FF00;
+  border-color: rgba(0, 255, 0, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Clean up the typewriter text */
+.typewriter-text {
+  display: inline-block;
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.3em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  text-transform: uppercase;
+}
+
+.assistant-name, .user-name {
+  font-weight: 700;
+  font-size: 0.85em;
+  color: #00FF00;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Add a subtle code/terminal animation to messages */
+.message.bot .message-content::before,
+.message.user .message-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 255, 0, 0.07) 0%,
+    transparent 50%
+  );
+  background-size: 100% 50px;
+  animation: terminalScan 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+}
+
+@keyframes terminalScan {
+  0% {
+    background-position: 0 -50px;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+/* Add a glitch effect on hover */
+.message-content:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.03);
+  opacity: 0;
+  animation: glitchEffect 0.3s ease-in-out forwards;
+  pointer-events: none;
+}
+
+@keyframes glitchEffect {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+    transform: translate(5px, 0);
+  }
+  40% {
+    opacity: 0.2;
+    transform: translate(-2px, 0);
+  }
+  60% {
+    opacity: 0.4;
+    transform: translate(0, 2px);
+  }
+  80% {
+    opacity: 0.1;
+    transform: translate(-1px, -1px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+/* Remove terminal scan effect from messages */
+.message.bot .message-content,
+.message.user .message-content {
+  /* Remove the scan effect */
+  background: none;
+  animation: none;
+}
+
+.message.bot .message-content::after,
+.message-content:hover::after {
+  display: none;
+}
+
+/* Override any animations or effects */
+.message.bot .message-content::before,
+.message.user .message-content::before,
+.message.bot .message-content::after,
+.message.user .message-content::after,
+.message-content:hover::after {
+  display: none !important;
+  background: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+}
+
+/* General spy theme elements */
+:root {
+  --terminal-green: #0fce09;
+  --terminal-green-dim: rgba(15, 206, 9, 0.7);
+  --terminal-red: #e83d3c;
+  --dark-bg: #000000;
+  --highlight: #1f4d1f;
 }
 
 /* Add this to the bottom of your globals.css file */
@@ -681,9 +1210,10 @@ h1 {
   align-items: center;
   width: 100%;
   padding: 2px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 6px;
   height: 24px;
+  border: 1px solid rgba(0, 255, 0, 0.2);
 }
 
 .centered-toggle-row .mode-button {
@@ -782,25 +1312,26 @@ h1 {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
+  width: 100vw;
+  height: 100vh;
   overflow: hidden;
+  z-index: -1;
 }
 
 .video-background video {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  opacity: 0.2;
 }
 
 /* Glass container for chat interface */
 .glass-container {
-  background: rgba(0, 10, 86, 0.4) !important;
+  background: rgba(10, 10, 10, 0.7) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
   padding: 20px;
 }
 
@@ -823,7 +1354,7 @@ h1 {
 
 /* Update input area to be more transparent */
 .input-area {
-  background-color: rgba(0, 10, 86, 0.3);
+  background-color: rgba(0, 0, 0, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -834,4 +1365,603 @@ h1 {
 
 .message.user {
   background-color: rgba(237, 81, 69, 0.8);
+}
+
+/* Film grain texture on UI elements */
+.mode-card, .input-area, .message {
+  position: relative;
+}
+
+.mode-card::before, .input-area::before, .message::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.mode-icon {
+  background-color: #111111 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mode-card:hover .mode-icon {
+  background-color: #1a1a1a !important;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
+
+/* Spy-themed elements */
+.spy-search-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+}
+
+/* Add a pulse animation to the search prompt */
+.search-prompt {
+  color: rgba(0, 255, 0, 0.8);
+  margin-bottom: 15px;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.6;
+  }
+}
+
+.typewriter-text {
+  display: inline-block;
+  position: relative;
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.3em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  text-transform: uppercase;
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typing 3.5s steps(30, end) forwards, blink-caret 0.75s step-end infinite;
+}
+
+.typewriter-text::before {
+  content: attr(data-text);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  color: rgba(0, 255, 0, 0.8);
+  background: rgba(10, 10, 10, 0.2);
+  overflow: hidden;
+  clip-path: inset(0 0 0 0);
+  animation: glitch 5s infinite linear alternate-reverse;
+  white-space: nowrap;
+}
+
+@keyframes typing {
+  from { width: 0 }
+  to { width: 100% }
+}
+
+@keyframes blink-caret {
+  from, to { border-right: 2px solid transparent }
+  50% { border-right: 2px solid #00FF00; }
+}
+
+.terminal-decoration {
+  display: none;
+}
+
+/* Console-style input styling */
+.main-console {
+  width: 100%;
+  max-width: 600px;
+}
+
+.main-console::before {
+  display: none;
+}
+
+.main-console .input-controls {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.main-console .response-toggles {
+  margin-top: 0.5rem;
+}
+
+.main-console #user-input {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid rgba(0, 255, 0, 0.7);
+  border-radius: 6px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #00FF00;
+  font-size: 1.1em;
+  font-family: 'Courier Prime', monospace;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-align: center;
+}
+
+.main-console #user-input::placeholder {
+  color: rgba(0, 255, 0, 0.6);
+  text-align: center;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console #user-input:focus {
+  border-color: rgba(0, 255, 0, 0.9);
+  outline: none;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
+  text-align: left;
+}
+
+.main-console #send-btn {
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #00FF00;
+  border: 1px solid rgba(0, 255, 0, 0.7);
+  border-radius: 6px;
+  padding: 15px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.9em;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+}
+
+.main-console .response-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.main-console .response-mode, 
+.main-console .centered-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  height: auto;
+}
+
+.main-console .mode-button {
+  flex: 1;
+  text-align: center;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 255, 0, 0.6);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px !important;
+  padding: 6px 15px;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console .mode-button:hover {
+  background-color: rgba(0, 20, 0, 0.7);
+  color: #00FF00;
+}
+
+.main-console .mode-button.active {
+  background-color: rgba(0, 40, 0, 0.7);
+  color: #00FF00;
+  border-color: rgba(0, 255, 0, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Terminal decoration elements */
+.terminal-decoration {
+  margin-bottom: 15px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background-color: rgba(0, 30, 0, 0.7);
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.terminal-led {
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 255, 0, 0.7);
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 6px rgba(0, 255, 0, 0.8);
+  animation: led-blink 3s infinite;
+}
+
+.terminal-title {
+  font-family: 'Courier Prime', monospace;
+  font-size: 0.75em;
+  color: rgba(0, 255, 0, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+@keyframes led-blink {
+  0%, 80%, 100% { opacity: 1; }
+  40% { opacity: 0.4; }
+}
+
+/* Make sure error messages look consistent with the rest of the UI */
+.message.bot .message-content,
+.message.user .message-content {
+  color: #00FF00;
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border: 1px solid rgba(0, 255, 0, 0.3);
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  box-sizing: border-box;
+  width: 100%;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.1em;
+  line-height: 1.4;
+  position: relative;
+}
+
+/* Make error messages consistent */
+.message.bot .message-content span,
+.message.user .message-content span {
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1em;
+}
+
+/* Add a subtle scan effect to error messages */
+.message.bot .message-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(0, 255, 0, 0.03) 50%
+  );
+  background-size: 100% 4px;
+  pointer-events: none;
+  animation: scantext 1s linear infinite;
+  opacity: 0.3;
+  z-index: 0;
+}
+
+@keyframes scantext {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 4px; }
+}
+
+/* Apply consistent styling to buttons to match the mockup */
+.response-mode {
+  display: flex;
+  width: 100%;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.main-console .response-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.main-console .mode-button {
+  flex: 1;
+  text-align: center;
+  min-width: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: rgba(0, 255, 0, 0.6);
+  border: 1px solid rgba(0, 255, 0, 0.4);
+  border-radius: 4px !important;
+  padding: 6px 15px;
+  font-size: 0.7em;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: 'Courier Prime', monospace;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.main-console .mode-button:hover {
+  background-color: rgba(0, 20, 0, 0.7);
+  color: #00FF00;
+}
+
+.main-console .mode-button.active {
+  background-color: rgba(0, 40, 0, 0.7);
+  color: #00FF00;
+  border-color: rgba(0, 255, 0, 0.7);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+/* Clean up the typewriter text */
+.typewriter-text {
+  display: inline-block;
+  color: #00FF00;
+  font-family: 'Courier Prime', monospace;
+  font-size: 1.3em;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
+  text-transform: uppercase;
+}
+
+.assistant-name, .user-name {
+  font-weight: 700;
+  font-size: 0.85em;
+  color: #00FF00;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Add a subtle code/terminal animation to messages */
+.message.bot .message-content::before,
+.message.user .message-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 255, 0, 0.07) 0%,
+    transparent 50%
+  );
+  background-size: 100% 50px;
+  animation: terminalScan 3s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.3;
+}
+
+@keyframes terminalScan {
+  0% {
+    background-position: 0 -50px;
+  }
+  100% {
+    background-position: 0 100%;
+  }
+}
+
+/* Add a glitch effect on hover */
+.message-content:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 255, 0, 0.03);
+  opacity: 0;
+  animation: glitchEffect 0.3s ease-in-out forwards;
+  pointer-events: none;
+}
+
+@keyframes glitchEffect {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.5;
+    transform: translate(5px, 0);
+  }
+  40% {
+    opacity: 0.2;
+    transform: translate(-2px, 0);
+  }
+  60% {
+    opacity: 0.4;
+    transform: translate(0, 2px);
+  }
+  80% {
+    opacity: 0.1;
+    transform: translate(-1px, -1px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(0, 0);
+  }
+}
+
+/* Remove terminal scan effect from messages */
+.message.bot .message-content,
+.message.user .message-content {
+  /* Remove the scan effect */
+  background: none;
+  animation: none;
+}
+
+.message.bot .message-content::after,
+.message-content:hover::after {
+  display: none;
+}
+
+/* FINAL STYLING OVERRIDES - DO NOT MODIFY BELOW THIS LINE */
+#spy-theme-reset {
+  display: contents;
+}
+
+/* Container reset */
+.chat-container {
+  background: rgba(0, 0, 0, 0.9) !important;
+  border: 1px solid rgba(0, 255, 0, 0.3) !important;
+  border-radius: 4px !important;
+}
+
+/* Message containers */
+.message {
+  border-radius: 4px !important;
+  margin-bottom: 15px !important;
+  overflow: hidden !important;
+}
+
+.message.user {
+  background-color: rgba(0, 20, 0, 0.9) !important;
+  border: 1px solid rgba(0, 255, 0, 0.3) !important;
+  padding: 0 !important;
+}
+
+.message.bot {
+  background-color: #d4dcd9 !important;
+  border: 1px solid rgba(221, 221, 221, 0.3) !important;
+  padding: 0 !important;
+}
+
+/* Message content */
+.message-content,
+.message.user .message-content,
+.message.bot .message-content {
+  background: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  animation: none !important;
+  padding: 30px 15px 15px 15px !important;
+  margin: 0 !important;
+}
+
+.message.user .message-content {
+  color: #0fce09 !important;
+  text-align: right !important;
+}
+
+.message.bot .message-content {
+  color: #083f06 !important;
+}
+
+/* Message content text */
+.message-content span,
+.message.user .message-content span,
+.message.bot .message-content span {
+  animation: none !important;
+  background: none !important;
+}
+
+.message.user .message-content span {
+  color: #0fce09 !important;
+  text-align: right !important;
+}
+
+.message.bot .message-content span {
+  color: #083f06 !important;
+}
+
+/* Labels */
+.user-name {
+  position: absolute !important;
+  top: 8px !important;
+  right: 15px !important;
+  color: rgba(0, 255, 0, 0.9) !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.75em !important;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  z-index: 10 !important;
+}
+
+.assistant-name {
+  position: absolute !important;
+  top: 8px !important;
+  left: 15px !important;
+  color: #052a03 !important;
+  font-family: 'Courier Prime', monospace !important;
+  font-size: 0.75em !important;
+  text-transform: uppercase !important;
+  font-weight: bold !important;
+  z-index: 10 !important;
+}
+
+/* Buttons */
+#user-input,
+.main-console #user-input {
+  border-radius: 4px !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(0, 255, 0, 0.5) !important;
+  color: rgb(0, 255, 0) !important;
+}
+
+#send-btn,
+.main-console #send-btn {
+  border-radius: 4px !important;
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  border: 1px solid rgba(0, 255, 0, 0.5) !important;
+  color: rgb(0, 255, 0) !important;
+}
+
+.mode-button,
+.main-console .mode-button {
+  border-radius: 4px !important;
+  background-color: rgba(0, 0, 0, 0.6) !important;
+  border: 1px solid rgba(0, 255, 0, 0.4) !important;
+  color: rgba(0, 255, 0, 0.7) !important;
+}
+
+.mode-button.active,
+.main-console .mode-button.active {
+  background-color: rgba(0, 40, 0, 0.7) !important;
+  color: #00FF00 !important;
+}
+
+/* Remove all animations */
+.message::before,
+.message::after,
+.message-content::before,
+.message-content::after,
+.message.bot .message-content::before,
+.message.bot .message-content::after,
+.message.user .message-content::before,
+.message.user .message-content::after {
+  display: none !important;
+  animation: none !important;
+  opacity: 0 !important;
+  content: normal !important;
+  background: none !important;
 }
