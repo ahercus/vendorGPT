@@ -1,0 +1,25 @@
+exclude:
+  - node_modules
+  - dist
+  - build
+  - .next
+  - out
+  - .turbo
+  - .vercel
+  - .vscode
+  - .idea
+  - .DS_Store
+  - package-lock.json
+  - pnpm-lock.yaml
+  - yarn.lock
+
+
+
+
+
+
+
+
+
+
+

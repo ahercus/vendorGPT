@@ -34,3 +34,4 @@ yarn-error.log*
 
 # Vercel cache
 .vercel/cache/
+.vercel
