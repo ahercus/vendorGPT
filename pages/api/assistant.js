@@ -161,6 +161,15 @@ export default async function handler(req, res) {
     });
 
     // Create a run WITHOUT any overrides - let the dashboard settings work
+    //
+    // Model choice is intentionally NOT wired to ecosystem_model_config here.
+    // The OpenAI Assistants API resolves its own model from whatever is set
+    // on the Assistant object in the OpenAI dashboard (platform.openai.com),
+    // not from a `model` param on the run — passing one would override the
+    // dashboard config, which is the deliberate source of truth for this app.
+    // The "stalker"/"assistant" row in ecosystem_model_config is aspirational
+    // metadata only; to actually change Stalker's model, update the
+    // Assistant in the OpenAI dashboard.
     const run = await openai.beta.threads.runs.create(session.threadId, {
       assistant_id: process.env.ASSISTANT_ID
     });
