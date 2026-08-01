@@ -1,20 +1,39 @@
 /**
  * Noble People Ecosystem Analytics
- * Tracks activity for the Everything dashboard
+ * Tracks activity for the Everything dashboard.
+ *
+ * Direct-REST insert into ecosystem_analytics (noble-people-products) — no
+ * @supabase/supabase-js client needed, matching the canonical pattern in
+ * forge/src/lib/analytics.ts. Credentials come from env, never hardcoded
+ * (the previous literal legacy anon JWT here was disabled on 2026-05-01,
+ * which silently killed every insert — see no-hardcoded-supabase-keys.mdc).
  */
-
-import { createClient } from "@supabase/supabase-js";
 
 const PROJECT_ID = "stalker";
 const PROJECT_NAME = "Stalker";
 
-const ANALYTICS_SUPABASE_URL = "https://scgirtkjkxqbvmemmefo.supabase.co";
-const ANALYTICS_SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjZ2lydGtqa3hxYnZtZW1tZWZvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQwNDEyMTUsImV4cCI6MjA1OTYxNzIxNX0.ZSc86Y37DqlAjEFDhVyxJ6LW7oAHjrX5maQhvDkTftU";
+const ANALYTICS_SUPABASE_URL = process.env.NEXT_PUBLIC_ANALYTICS_SUPABASE_URL || "";
+const ANALYTICS_SUPABASE_KEY = process.env.NEXT_PUBLIC_ANALYTICS_SUPABASE_ANON_KEY || "";
 
-const analyticsClient = createClient(ANALYTICS_SUPABASE_URL, ANALYTICS_SUPABASE_KEY, {
-  auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false, storageKey: "np_ecosystem_analytics" },
-  global: { fetch: (url, options) => fetch(url, { ...options, credentials: "omit", mode: "cors" }) }
-});
+function analyticsEnabled() {
+  return !!(ANALYTICS_SUPABASE_URL && ANALYTICS_SUPABASE_KEY);
+}
+
+function postEvent(data) {
+  if (!analyticsEnabled()) return Promise.resolve();
+  return fetch(`${ANALYTICS_SUPABASE_URL}/rest/v1/ecosystem_analytics`, {
+    method: "POST",
+    headers: {
+      apikey: ANALYTICS_SUPABASE_KEY,
+      Authorization: `Bearer ${ANALYTICS_SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      Prefer: "return=minimal",
+    },
+    body: JSON.stringify(data),
+  }).catch((error) => {
+    console.warn("[Ecosystem Analytics] Failed:", error.message);
+  });
+}
 
 let anonymousId = null;
 function getAnonymousId() {
@@ -82,9 +101,7 @@ export async function trackEvent(event) {
       browser, browser_version: browserVersion || null, os, os_version: osVersion || null, device_type: deviceType,
       metadata: event.metadata || {}, client_timestamp: new Date().toISOString()
     };
-    analyticsClient.from("ecosystem_analytics").insert(data).then(({ error }) => {
-      if (error) console.warn("[Ecosystem Analytics] Failed:", error.message);
-    });
+    postEvent(data);
   } catch (error) { console.warn("[Ecosystem Analytics] Error:", error); }
 }
 
@@ -94,10 +111,14 @@ export const trackClick = (elementName, metadata) => trackEvent({ eventType: "cl
 
 if (typeof window !== "undefined") {
   const trackSessionEnd = () => {
-    if (!sessionId || !sessionStartTime) return;
+    if (!sessionId || !sessionStartTime || !analyticsEnabled()) return;
     const duration = Date.now() - sessionStartTime;
     const data = { project_id: PROJECT_ID, project_name: PROJECT_NAME, event_type: "session_end", session_id: sessionId, anonymous_id: getAnonymousId(), session_duration_ms: duration, page_path: window.location.pathname, metadata: { duration_seconds: Math.round(duration / 1000) }, client_timestamp: new Date().toISOString() };
-    navigator.sendBeacon(`${ANALYTICS_SUPABASE_URL}/rest/v1/ecosystem_analytics`, new Blob([JSON.stringify(data)], { type: "application/json" }));
+    // sendBeacon can't set headers, so PostgREST's apikey has to travel as a
+    // query param — a bare POST here 401s silently (fire-and-forget, no
+    // response to inspect) since the Authorization header would be missing.
+    const url = `${ANALYTICS_SUPABASE_URL}/rest/v1/ecosystem_analytics?apikey=${encodeURIComponent(ANALYTICS_SUPABASE_KEY)}`;
+    navigator.sendBeacon(url, new Blob([JSON.stringify(data)], { type: "application/json" }));
   };
   window.addEventListener("beforeunload", trackSessionEnd);
   window.addEventListener("pagehide", trackSessionEnd);
